@@ -1,17 +1,31 @@
 package com.mcsdc.addon.gui;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mcsdc.addon.Main;
 import com.mcsdc.addon.system.McsdcSystem;
 import java.net.http.HttpResponse;
-import com.mcsdc.addon.Main;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
 import meteordevelopment.meteorclient.gui.GuiThemes;
 import meteordevelopment.meteorclient.gui.WindowScreen;
+import meteordevelopment.meteorclient.gui.widgets.containers.WHorizontalList;
 import meteordevelopment.meteorclient.gui.widgets.containers.WTable;
+import meteordevelopment.meteorclient.systems.accounts.types.CrackedAccount;
 import meteordevelopment.meteorclient.utils.network.Http;
+import com.google.gson.JsonParser;
+import net.minecraft.client.MinecraftClient;
 
 public class ServerInfoScreen extends WindowScreen {
 
@@ -40,114 +54,113 @@ public class ServerInfoScreen extends WindowScreen {
 
             return response.body();
         }).thenAccept(response -> {
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode;
+            MinecraftClient.getInstance().execute(() -> {
+                JsonObject jsonObject = JsonParser.parseString(response).getAsJsonObject();
 
-            try {
-                jsonNode = objectMapper.readTree(response);
-            } catch (JsonProcessingException e) {
-                Main.LOG.error("Error parsing response as JSON", e);
-                return;
-            }
+                WTable table = add(theme.table()).widget();
 
-            WTable table = add(theme.table()).widget();
-
-            table.add(
-                theme.label(
-                    "version: %s".formatted(jsonNode.get("version").asText())
-                )
-            );
-            table.row();
-            table.add(
-                theme.label(
-                    "visited: %s".formatted(
-                            jsonNode.get("status").get("visited").asText()
-                        )
-                )
-            );
-            table.row();
-            table.add(
-                theme.label(
-                    "griefed: %s".formatted(
-                            jsonNode.get("status").get("griefed").asText()
-                        )
-                )
-            );
-            table.row();
-            table.add(
-                theme.label(
-                    "modded: %s".formatted(
-                            jsonNode.get("status").get("modded").asText()
-                        )
-                )
-            );
-            table.row();
-            table.add(
-                theme.label(
-                    "whitelist: %s".formatted(
-                            jsonNode.get("status").get("whitelist").asText()
-                        )
-                )
-            );
-            table.row();
-            table.add(
-                theme.label(
-                    "banned: %s".formatted(
-                            jsonNode.get("status").get("banned").asText()
-                        )
-                )
-            );
-            table.row();
-            table.add(
-                theme.label(
-                    "save_for_later: %s".formatted(
-                            jsonNode
-                                .get("status")
+                table.add(
+                    theme.label("version: %s".formatted(jsonObject.get("version").getAsString()))
+                );
+                table.row();
+                table.add(
+                    theme.label("visited: %s".formatted(jsonObject.get("status").getAsJsonObject().get("visited").getAsString()))
+                );
+                table.row();
+                table.add(
+                    theme.label("griefed: %s".formatted(jsonObject.get("status").getAsJsonObject().get("griefed").getAsString()))
+                );
+                table.row();
+                table.add(
+                    theme.label("modded: %s".formatted(jsonObject.get("status").getAsJsonObject().get("modded").getAsString()))
+                );
+                table.row();
+                table.add(
+                    theme.label("whitelist: %s".formatted(jsonObject.get("status").getAsJsonObject().get("whitelist").getAsString()))
+                );
+                table.row();
+                table.add(
+                    theme.label("banned: %s".formatted(jsonObject.get("status").getAsJsonObject().get("banned").getAsString()))
+                );
+                table.row();
+                table.add(
+                    theme.label(
+                        "save for later: %s".formatted(
+                            jsonObject
+                                .get("status").getAsJsonObject()
                                 .get("save_for_later")
-                                .asText()
+                                .getAsString()
                         )
-                )
-            );
-            table.row();
+                    )
+                );
+                table.row();
 
-            table.add(
-                theme.label(
-                    "notes: %s".formatted(jsonNode.get("notes").asText())
-                )
-            );
-            table.row();
-            table.add(
-                theme.label(
-                    "last_seen_online: %s".formatted(
-                            jsonNode.get("last_seen_online").asText()
-                        )
-                )
-            );
-            table.row();
-            table.add(
-                theme.label(
-                    "last_scanned: %s".formatted(
-                            jsonNode.get("last_scanned").asText()
-                        )
-                )
-            );
-            table.row();
-            table.add(
-                theme.label(
-                    "last_joined: %s".formatted(
-                            jsonNode.get("last_joined").asText()
-                        )
-                )
-            );
-            table.row();
-            table.add(
-                theme.label(
-                    "historical: %s".formatted(
-                            jsonNode.get("historical").asText()
-                        )
-                )
-            );
-            table.row();
+//            String notes = jsonObject.get("notes").getAsString();
+//            Main.LOG.info(notes);
+//            if (notes != null && !notes.isEmpty()){
+//                table.add(
+//                    theme.label("notes: %s".formatted(notes))
+//                );
+//            }
+
+                table.row();
+                table.add(
+                    theme.label("last seen online: %s".formatted(timeAgo(jsonObject.get("last_seen_online").getAsLong())))
+                );
+                table.row();
+                table.add(
+                    theme.label("last scanned: %s".formatted(timeAgo(jsonObject.get("last_scanned").getAsLong())))
+                );
+                table.row();
+                table.add(
+                    theme.label("last joined: %s".formatted(timeAgo(jsonObject.get("last_joined").getAsLong()))));
+                table.row();
+
+                table.add(
+                    theme.label("Historical:")
+                );
+
+                WTable accounts = add(theme.table()).expandX().widget();
+
+                JsonArray array = JsonParser.parseString(response).getAsJsonObject().getAsJsonArray("historical");
+
+                for (JsonElement jsonElement : array) {
+                    String name = jsonElement.getAsJsonObject().get("name").getAsString();
+                    Main.LOG.info(name);
+                    accounts.add(theme.label(name)).expandX().widget();
+                    accounts.add(theme.button("Login")).expandX().widget().action = () -> {
+                        new CrackedAccount(name).login();
+                    };
+                    if (array.asList().getLast() != jsonElement) accounts.row();
+                }
+            });
         });
     }
+
+    public static String timeAgo(long timestampMillis) {
+        long currentMillis = System.currentTimeMillis();
+        long diffMillis = currentMillis - timestampMillis;
+
+        if (diffMillis < 0) {
+            return "In the future"; // Handles cases where timestamp is in the future
+        }
+
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(diffMillis);
+        if (seconds < 60) {
+            return seconds + " seconds ago";
+        }
+
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(diffMillis);
+        if (minutes < 60) {
+            return minutes + " minutes ago";
+        }
+
+        long hours = TimeUnit.MILLISECONDS.toHours(diffMillis);
+        return hours + " hours ago";
+    }
+
+
+
+
+
 }
