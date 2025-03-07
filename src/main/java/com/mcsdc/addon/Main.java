@@ -6,9 +6,14 @@ import meteordevelopment.meteorclient.addons.MeteorAddon;
 import meteordevelopment.meteorclient.systems.Systems;
 import org.slf4j.Logger;
 
+import java.security.PublicKey;
+import java.util.HashMap;
+import java.util.Map;
+
 public class Main extends MeteorAddon {
     public static final Logger LOG = LogUtils.getLogger();
     public static String mainEndpoint = "https://interact.mcsdc.online/api";
+    public static Map<String, String> recentServers = new HashMap<>();
 
     @Override
     public void onInitialize() {
