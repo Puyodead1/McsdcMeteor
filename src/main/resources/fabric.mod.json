@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "mcsdc",
+  "version": "${version}",
+  "name": "Mcsdc",
+  "description": "Mcsdc server finder.",
+  "authors": [
+    "nxyi"
+  ],
+  "contact": {
+    "repo": ""
+  },
+  "icon": "assets/template/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "meteor": [
+      "com.mcsdc.addon.Main"
+    ]
+  },
+  "mixins": [
+    "mcsdc.mixins.json"
+  ],
+  "custom": {
+    "meteor-client:color": "225,25,25"
+  },
+  "depends": {
+    "java": ">=21",
+    "minecraft": ["${mc_version}"],
+    "meteor-client": "*"
+  }
+}
