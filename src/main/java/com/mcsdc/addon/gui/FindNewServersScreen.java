@@ -110,7 +110,7 @@ public class FindNewServersScreen extends WindowScreen {
                     .formatted((versionSetting.get().number == -1) ? null : versionSetting.get().getNumber(), visitedSetting.get(), griefedSetting.get(), moddedSetting.get(), savedSetting.get(), whitelistSetting.get(), activeSetting.get(), crackedSetting.get());
 
                 int versionNumber = (versionSetting.get().number == -1) ? null : versionSetting.get().getNumber();
-                if (versionNumber == -1){
+                if (versionNumber != -1){
                     string = "{\"search\":{\"version\":{\"name\":\"%s\"},\"flags\":{\"visited\":false,\"griefed\":false,\"modded\":false,\"saved\":false,\"whitelist\":false,\"active\":false,\"cracked\":false}}}"
                         .formatted(versionSetting.get().getVersion(), visitedSetting.get(), griefedSetting.get(), moddedSetting.get(), savedSetting.get(), whitelistSetting.get(), activeSetting.get(), crackedSetting.get());
 
