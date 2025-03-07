@@ -5,14 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mcsdc.addon.Main;
 import com.mcsdc.addon.system.McsdcSystem;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
+import com.mcsdc.addon.Main;
 import java.util.concurrent.CompletableFuture;
 import meteordevelopment.meteorclient.gui.GuiThemes;
 import meteordevelopment.meteorclient.gui.WindowScreen;
@@ -35,7 +29,7 @@ public class ServerInfoScreen extends WindowScreen {
                 "{\"search\":{\"address\":\"%s\"}}".formatted(this.ip);
 
             HttpResponse<String> response = Http.post(
-                "https://interact.mcsdc.online/api"
+                Main.mainEndpoint
             )
                 .bodyString(string)
                 .header(

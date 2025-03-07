@@ -116,7 +116,7 @@ public class FindNewServersScreen extends WindowScreen {
 
                 }
 
-                String response = Http.post("https://interact.mcsdc.online/api").bodyJson(string).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendString();
+                String response = Http.post(Main.mainEndpoint).bodyJson(string).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendString();
                 return response;
             }).thenAccept(response -> {
                 Map<String, String> extractedServers = extractServerInfo(response);

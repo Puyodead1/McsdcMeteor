@@ -4,10 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mcsdc.addon.system.McsdcSystem;
-import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.GuiThemes;
 import meteordevelopment.meteorclient.gui.WindowScreen;
-import meteordevelopment.meteorclient.gui.widgets.WWidget;
+import com.mcsdc.addon.Main;
 import meteordevelopment.meteorclient.gui.widgets.containers.WContainer;
 import meteordevelopment.meteorclient.gui.widgets.containers.WTable;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WButton;
@@ -59,7 +58,7 @@ public class FindPlayerScreen extends WindowScreen {
                 String string = "{\"search\":{\"player\":\"%s\"}}"
                     .formatted(this.playerSetting.get());
 
-                String response = Http.post("https://interact.mcsdc.online/api").bodyJson(string).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendString();
+                String response = Http.post(Main.mainEndpoint).bodyJson(string).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendString();
                 return response;
 
             }).thenAccept(response -> {

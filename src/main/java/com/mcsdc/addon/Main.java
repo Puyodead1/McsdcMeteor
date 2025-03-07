@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 
 public class Main extends MeteorAddon {
     public static final Logger LOG = LogUtils.getLogger();
+    public static String mainEndpoint = "https://interact.mcsdc.online/api";
 
     @Override
     public void onInitialize() {

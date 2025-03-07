@@ -4,7 +4,7 @@ import com.mcsdc.addon.system.McsdcSystem;
 import meteordevelopment.meteorclient.gui.GuiThemes;
 import meteordevelopment.meteorclient.gui.WindowScreen;
 import meteordevelopment.meteorclient.gui.widgets.containers.WHorizontalList;
-import meteordevelopment.meteorclient.gui.widgets.containers.WTable;
+import com.mcsdc.addon.Main;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WButton;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;

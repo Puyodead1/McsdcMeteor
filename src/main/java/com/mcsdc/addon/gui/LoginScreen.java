@@ -2,6 +2,7 @@ package com.mcsdc.addon.gui;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mcsdc.addon.Main;
 import com.mcsdc.addon.system.McsdcSystem;
 import meteordevelopment.meteorclient.gui.GuiThemes;
 import meteordevelopment.meteorclient.gui.WindowScreen;
@@ -49,7 +50,7 @@ public class LoginScreen extends WindowScreen {
         add(theme.button("Submit")).expandX().widget().action = () -> {
             CompletableFuture.supplyAsync(() -> {
                 String request = "{\"auth\":{\"login\":\"%s\"}}".formatted(tokenSetting.get());
-                String response = Http.post("https://interact.mcsdc.online/api").bodyJson(request).sendString();
+                String response = Http.post(Main.mainEndpoint).bodyJson(request).sendString();
 
                 JsonObject jsonObject = JsonParser.parseString(response).getAsJsonObject();
 
