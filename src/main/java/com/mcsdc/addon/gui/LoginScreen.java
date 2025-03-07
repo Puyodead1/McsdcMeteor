@@ -60,10 +60,6 @@ public class LoginScreen extends WindowScreen {
                 String name = data.get("name").getAsString();
                 int perms = data.get("perms").getAsInt();
 
-                // Print the extracted values
-                System.out.println("Name: " + name);
-                System.out.println("Perms: " + perms);
-
                 Map<String, Integer> map = new HashMap<>();
                 map.put(name, perms);
 
