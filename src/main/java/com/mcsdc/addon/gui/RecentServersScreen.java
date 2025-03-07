@@ -29,17 +29,18 @@ public class RecentServersScreen extends WindowScreen {
     @Override
     public void initWidgets() {
         WTable table = add(theme.table()).expandX().widget();
+
+        if (McsdcSystem.get().getRecentServers().isEmpty()){
+            table.add(theme.label("Recently joined servers will appear here.")).expandX().widget();
+            return;
+        }
+
         table.add(theme.button("Clear")).expandX().widget().action = () -> {
             McsdcSystem.get().getRecentServers().clear();
             reload();
         };
 
         table.row();
-
-        if (McsdcSystem.get().getRecentServers().isEmpty()){
-            table.add(theme.label("Recently joined servers will appear here.")).expandX().widget();
-            return;
-        }
 
         table.add(theme.label("Server IP"));
         table.add(theme.label("Version"));
