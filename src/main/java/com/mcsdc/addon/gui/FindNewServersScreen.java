@@ -81,13 +81,6 @@ public class FindNewServersScreen extends WindowScreen {
         .build()
     );
 
-    private final Setting<Boolean> vanillaSetting = sg.add(new BoolSetting.Builder()
-        .name("vanilla")
-        .description("")
-        .defaultValue(false)
-        .build()
-    );
-
     private final Setting<VersionEnum> versionSetting = sg.add(new EnumSetting.Builder<VersionEnum>()
         .name("version")
         .description("")
@@ -115,6 +108,13 @@ public class FindNewServersScreen extends WindowScreen {
             CompletableFuture.supplyAsync(() -> {
                 String string = "{\"search\":{\"version\":%s,\"flags\":{\"visited\":%s,\"griefed\":%s,\"modded\":%s,\"saved\":%s,\"whitelist\":%s,\"active\":%s,\"cracked\":%s}}}"
                     .formatted((versionSetting.get().number == -1) ? null : versionSetting.get().getNumber(), visitedSetting.get(), griefedSetting.get(), moddedSetting.get(), savedSetting.get(), whitelistSetting.get(), activeSetting.get(), crackedSetting.get());
+
+                int versionNumber = (versionSetting.get().number == -1) ? null : versionSetting.get().getNumber();
+                if (versionNumber == -1){
+                    string = "{\"search\":{\"version\":{\"name\":\"%s\"},\"flags\":{\"visited\":false,\"griefed\":false,\"modded\":false,\"saved\":false,\"whitelist\":false,\"active\":false,\"cracked\":false}}}"
+                        .formatted(versionSetting.get().getVersion(), visitedSetting.get(), griefedSetting.get(), moddedSetting.get(), savedSetting.get(), whitelistSetting.get(), activeSetting.get(), crackedSetting.get());
+
+                }
 
                 String response = Http.post("https://interact.mcsdc.online/api").bodyJson(string).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendString();
                 return response;
