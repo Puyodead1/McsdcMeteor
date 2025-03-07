@@ -5,7 +5,9 @@ import meteordevelopment.meteorclient.gui.GuiThemes;
 import meteordevelopment.meteorclient.gui.WindowScreen;
 import meteordevelopment.meteorclient.gui.widgets.containers.WHorizontalList;
 import com.mcsdc.addon.Main;
+import meteordevelopment.meteorclient.gui.widgets.containers.WTable;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WButton;
+import meteordevelopment.meteorclient.utils.network.Http;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 
@@ -27,8 +29,9 @@ public class McsdcScreen extends WindowScreen {
             return;
         }
 
-        WHorizontalList accountList = add(theme.horizontalList()).expandX().widget();
-        accountList.add(theme.label("")).expandX();
+        WTable accountList = add(theme.table()).expandX().widget();
+        accountList.add(theme.label(Http.post("https://interact.mcsdc.online/notice.txt").sendString()));
+        accountList.row();
         accountList.add(theme.label("User: " + McsdcSystem.get().getUsername())).expandX();
         accountList.add(theme.label("Perms: " + McsdcSystem.get().getLevel())).expandX();
 
