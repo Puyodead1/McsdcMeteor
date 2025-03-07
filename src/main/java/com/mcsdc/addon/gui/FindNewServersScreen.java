@@ -103,6 +103,12 @@ public class FindNewServersScreen extends WindowScreen {
         add(theme.button("search")).expandX().widget().action = () -> {
             reload();
 
+            if (!visitedSetting.get() && !moddedSetting.get() && !whitelistSetting.get() && !crackedSetting.get()
+            && !griefedSetting.get() && !savedSetting.get() && !activeSetting.get() && versionSetting.get().number == -1){
+                add(theme.label("An everything seach is not allowed!"));
+                return;
+            }
+
             CompletableFuture.supplyAsync(() -> {
                 String string = "{\"search\":{\"version\":%s,\"flags\":{\"visited\":%s,\"griefed\":%s,\"modded\":%s,\"saved\":%s,\"whitelist\":%s,\"active\":%s,\"cracked\":%s}}}"
                     .formatted((versionSetting.get().number == -1) ? null : versionSetting.get().getNumber(), visitedSetting.get(), griefedSetting.get(), moddedSetting.get(), savedSetting.get(), whitelistSetting.get(), activeSetting.get(), crackedSetting.get());
