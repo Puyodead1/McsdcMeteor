@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import meteordevelopment.meteorclient.gui.GuiThemes;
 import meteordevelopment.meteorclient.gui.WindowScreen;
 import meteordevelopment.meteorclient.gui.widgets.containers.WContainer;
+import meteordevelopment.meteorclient.gui.widgets.containers.WHorizontalList;
 import meteordevelopment.meteorclient.gui.widgets.containers.WTable;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WButton;
 import meteordevelopment.meteorclient.settings.*;
@@ -20,10 +21,7 @@ import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class FindNewServersScreen extends WindowScreen {
@@ -120,8 +118,9 @@ public class FindNewServersScreen extends WindowScreen {
                 return response;
             }).thenAccept(response -> {
                 Map<String, String> extractedServers = extractServerInfo(response);
-
-                add(theme.button("add all")).expandX().widget().action = () -> {
+                WHorizontalList buttons = add(theme.horizontalList()).expandX().widget();
+                WTable table = add(theme.table()).widget();
+                buttons.add(theme.button("add all")).expandX().widget().action = () -> {
                     extractedServers.forEach((serverIP, serverVersion) -> {
                         ServerInfo info = new ServerInfo("Mcsdc " + serverIP, serverIP, ServerInfo.ServerType.OTHER);
                         multiplayerScreen.getServerList().add(info, false);
@@ -130,49 +129,66 @@ public class FindNewServersScreen extends WindowScreen {
                     multiplayerScreen.getServerList().loadFile();
                 };
 
-                MinecraftClient.getInstance().execute(() -> {
-                    WTable table = add(theme.table()).widget();
+                buttons.add(theme.button("randomize")).expandX().widget().action = () -> {
+                    List<Map.Entry<String, String>> entryList = new ArrayList<>(extractedServers.entrySet());
 
-                    table.add(theme.label("Server IP"));
-                    table.add(theme.label("Version"));
-                    table.row();
-                    table.add(theme.horizontalSeparator()).expandX();
-                    table.row();
+                    Collections.shuffle(entryList);
+                    Map<String, String> randomizedMap = new LinkedHashMap<>();
 
-                    // Iterate through the extracted server data
-                    extractedServers.forEach((serverIP, serverVersion) -> {
-                        table.add(theme.label(serverIP));
-                        table.add(theme.label(serverVersion));
+                    for (Map.Entry<String, String> entry : entryList) {
+                        randomizedMap.put(entry.getKey(), entry.getValue());
+                    }
 
-                        WButton addServerButton = theme.button("Add Server");
-                        addServerButton.action = () -> {
-                            ServerInfo info = new ServerInfo("Mcsdc " + serverIP, serverIP, ServerInfo.ServerType.OTHER);
-                            multiplayerScreen.getServerList().add(info, false);
-                            multiplayerScreen.getServerList().saveFile();
-                            multiplayerScreen.getServerList().loadFile();
-                            addServerButton.visible = false;
-                        };
+                    generateWidgets(randomizedMap, table);
+                };
 
-                        WButton joinServerButton = theme.button("Join Server");
-                        joinServerButton.action = () ->
-                            ConnectScreen.connect(new TitleScreen(), MinecraftClient.getInstance(),
-                                new ServerAddress(serverIP.split(":")[0], Integer.parseInt(serverIP.split(":")[1])),
-                                new ServerInfo("a", serverIP, ServerInfo.ServerType.OTHER), false, null);
-
-                        WButton serverInfoButton = theme.button("Server Info");
-                        serverInfoButton.action = () -> {
-                            MinecraftClient.getInstance().setScreen(new ServerInfoScreen(serverIP));
-                        };
-
-                        table.add(addServerButton);
-                        table.add(joinServerButton);
-                        table.add(serverInfoButton);
-                        table.row();
-                    });
-                });
+                generateWidgets(extractedServers, table);
             });
 
         };
+    }
+
+    public void generateWidgets(Map<String, String> extractedServers, final WTable table){
+        MinecraftClient.getInstance().execute(() -> {
+            table.clear();
+
+            table.add(theme.label("Server IP"));
+            table.add(theme.label("Version"));
+            table.row();
+            table.add(theme.horizontalSeparator()).expandX();
+            table.row();
+
+            // Iterate through the extracted server data
+            extractedServers.forEach((serverIP, serverVersion) -> {
+                table.add(theme.label(serverIP));
+                table.add(theme.label(serverVersion));
+
+                WButton addServerButton = theme.button("Add Server");
+                addServerButton.action = () -> {
+                    ServerInfo info = new ServerInfo("Mcsdc " + serverIP, serverIP, ServerInfo.ServerType.OTHER);
+                    multiplayerScreen.getServerList().add(info, false);
+                    multiplayerScreen.getServerList().saveFile();
+                    multiplayerScreen.getServerList().loadFile();
+                    addServerButton.visible = false;
+                };
+
+                WButton joinServerButton = theme.button("Join Server");
+                joinServerButton.action = () ->
+                    ConnectScreen.connect(new TitleScreen(), MinecraftClient.getInstance(),
+                        new ServerAddress(serverIP.split(":")[0], Integer.parseInt(serverIP.split(":")[1])),
+                        new ServerInfo("a", serverIP, ServerInfo.ServerType.OTHER), false, null);
+
+                WButton serverInfoButton = theme.button("Server Info");
+                serverInfoButton.action = () -> {
+                    MinecraftClient.getInstance().setScreen(new ServerInfoScreen(serverIP));
+                };
+
+                table.add(addServerButton);
+                table.add(joinServerButton);
+                table.add(serverInfoButton);
+                table.row();
+            });
+        });
     }
 
     public static Map<String, String> extractServerInfo(String jsonResponse) {
