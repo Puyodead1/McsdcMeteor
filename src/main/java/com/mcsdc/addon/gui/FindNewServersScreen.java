@@ -116,12 +116,19 @@ public class FindNewServersScreen extends WindowScreen {
                 String string = "{\"search\":{\"version\":%s,\"flags\":{\"visited\":%s,\"griefed\":%s,\"modded\":%s,\"saved\":%s,\"whitelist\":%s,\"active\":%s,\"cracked\":%s}}}"
                     .formatted((versionSetting.get().number == -1) ? null : versionSetting.get().getNumber(), visitedSetting.get(), griefedSetting.get(), moddedSetting.get(), savedSetting.get(), whitelistSetting.get(), activeSetting.get(), crackedSetting.get());
 
-                Main.LOG.info(string);
                 String response = Http.post("https://interact.mcsdc.online/api").bodyJson(string).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendString();
-                Main.LOG.info(response);
                 return response;
             }).thenAccept(response -> {
                 Map<String, String> extractedServers = extractServerInfo(response);
+
+                add(theme.button("add all")).expandX().widget().action = () -> {
+                    extractedServers.forEach((serverIP, serverVersion) -> {
+                        ServerInfo info = new ServerInfo("Mcsdc " + serverIP, serverIP, ServerInfo.ServerType.OTHER);
+                        multiplayerScreen.getServerList().add(info, false);
+                    });
+                    multiplayerScreen.getServerList().saveFile();
+                    multiplayerScreen.getServerList().loadFile();
+                };
 
                 MinecraftClient.getInstance().execute(() -> {
                     WTable table = add(theme.table()).widget();

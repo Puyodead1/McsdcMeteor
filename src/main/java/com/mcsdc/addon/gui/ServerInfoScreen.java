@@ -34,10 +34,8 @@ public class ServerInfoScreen extends WindowScreen {
             String string = "{\"search\":{\"address\":\"%s\"}}"
                 .formatted(this.ip);
 
-            Main.LOG.info(string); // i dont know why the fuck this request does not want to work at all, i am going to kill myself
+            // i dont know why the fuck this request does not want to work at all, i am going to kill myself
             String response = Http.post("https://interact.mcsdc.online/api").bodyString(string).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendString();
-
-            Main.LOG.info(response);
             return response;
         }).thenAccept(response -> {
             ObjectMapper objectMapper = new ObjectMapper();
