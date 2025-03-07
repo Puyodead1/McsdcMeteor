@@ -1,6 +1,7 @@
 package com.mcsdc.addon.mixin;
 
 import com.mcsdc.addon.Main;
+import com.mcsdc.addon.system.McsdcSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
 import net.minecraft.client.network.CookieStorage;
@@ -16,7 +17,7 @@ public class ConnectScreenMixin {
 
     @Inject(method = "connect(Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/network/ServerAddress;Lnet/minecraft/client/network/ServerInfo;Lnet/minecraft/client/network/CookieStorage;)V", at = @At("HEAD"), cancellable = true)
     private void onConnect(MinecraftClient client, ServerAddress address, ServerInfo info, CookieStorage cookieStorage, CallbackInfo ci){
-        Main.recentServers.put(info.address, info.version.getLiteralString());
+        McsdcSystem.get().getRecentServers().put(info.address, info.version.getLiteralString());
     }
 
 }

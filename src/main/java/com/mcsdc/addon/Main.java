@@ -13,7 +13,6 @@ import java.util.Map;
 public class Main extends MeteorAddon {
     public static final Logger LOG = LogUtils.getLogger();
     public static String mainEndpoint = "https://interact.mcsdc.online/api";
-    public static Map<String, String> recentServers = new HashMap<>();
 
     @Override
     public void onInitialize() {

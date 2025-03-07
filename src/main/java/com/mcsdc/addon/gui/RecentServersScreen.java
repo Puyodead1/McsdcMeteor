@@ -1,6 +1,7 @@
 package com.mcsdc.addon.gui;
 
 import com.mcsdc.addon.Main;
+import com.mcsdc.addon.system.McsdcSystem;
 import com.mojang.datafixers.kinds.IdF;
 import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.GuiThemes;
@@ -27,16 +28,26 @@ public class RecentServersScreen extends WindowScreen {
 
     @Override
     public void initWidgets() {
-        add(theme.label(""));
-
         WTable table = add(theme.table()).expandX().widget();
+        table.add(theme.button("Clear")).expandX().widget().action = () -> {
+            McsdcSystem.get().getRecentServers().clear();
+            reload();
+        };
+
+        table.row();
+
+        if (McsdcSystem.get().getRecentServers().isEmpty()){
+            table.add(theme.label("Recently joined servers will appear here.")).expandX().widget();
+            return;
+        }
+
         table.add(theme.label("Server IP"));
         table.add(theme.label("Version"));
         table.row();
         table.add(theme.horizontalSeparator()).expandX();
 
         // Reverse list so most recent shows at the top
-        List<Map.Entry<String, String>> entryList = new ArrayList<>(Main.recentServers.entrySet());
+        List<Map.Entry<String, String>> entryList = new ArrayList<>(McsdcSystem.get().getRecentServers().entrySet());
         Map<String, String> reversed = new LinkedHashMap<>();
 
         Collections.reverse(entryList);
@@ -73,7 +84,7 @@ public class RecentServersScreen extends WindowScreen {
 
             WButton removeServerButton = theme.button("Remove Server");
             removeServerButton.action = () -> {
-                Main.recentServers.remove(serverIP, serverVersion);
+                McsdcSystem.get().getRecentServers().remove(serverIP, serverVersion);
                 reload();
             };
 
