@@ -48,9 +48,20 @@ public class LoginScreen extends WindowScreen {
         this.settingsContainer = settingsContainer;
 
         add(theme.button("Submit")).expandX().widget().action = () -> {
+            reload();
             CompletableFuture.supplyAsync(() -> {
+                if (tokenSetting.get().isEmpty()){
+                    add(theme.label("Please enter a token to login."));
+
+                    return null;
+                }
+
                 String request = "{\"auth\":{\"login\":\"%s\"}}".formatted(tokenSetting.get());
                 String response = Http.post(Main.mainEndpoint).bodyJson(request).sendString();
+                if (response == null){
+                    add(theme.label("Invalid token."));
+                    return null;
+                }
 
                 JsonObject jsonObject = JsonParser.parseString(response).getAsJsonObject();
 
@@ -66,6 +77,8 @@ public class LoginScreen extends WindowScreen {
 
                 return map;
             }).thenAccept(response -> {
+                if (response == null) return;
+
                 String extractedName = response.keySet().iterator().next();
                 int extractedPerms = response.get(extractedName);
 
