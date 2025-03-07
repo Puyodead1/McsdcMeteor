@@ -62,6 +62,17 @@ public class FindPlayerScreen extends WindowScreen {
                 return response;
 
             }).thenAccept(response -> {
+                Map<String, String> extractedServers = extractServerInfo(response);
+
+                add(theme.button("add all")).expandX().widget().action = () -> {
+                    extractedServers.forEach((serverIP, serverVersion) -> {
+                        ServerInfo info = new ServerInfo("Mcsdc " + serverIP, serverIP, ServerInfo.ServerType.OTHER);
+                        multiplayerScreen.getServerList().add(info, false);
+                    });
+                    multiplayerScreen.getServerList().saveFile();
+                    multiplayerScreen.getServerList().loadFile();
+                };
+
                 MinecraftClient.getInstance().execute(() -> {
                     WTable table = add(theme.table()).widget();
 
@@ -72,7 +83,7 @@ public class FindPlayerScreen extends WindowScreen {
                     table.row();
 
                     // Iterate through the extracted server data
-                    extractServerInfo(response).forEach((serverIP, serverVersion) -> {
+                    extractedServers.forEach((serverIP, serverVersion) -> {
                         table.add(theme.label(serverIP));
                         table.add(theme.label(serverVersion));
 
