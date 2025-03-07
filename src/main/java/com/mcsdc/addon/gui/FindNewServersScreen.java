@@ -133,13 +133,13 @@ public class FindNewServersScreen extends WindowScreen {
                     List<Map.Entry<String, String>> entryList = new ArrayList<>(extractedServers.entrySet());
 
                     Collections.shuffle(entryList);
-                    Map<String, String> randomizedMap = new LinkedHashMap<>();
+                    extractedServers.clear();
 
                     for (Map.Entry<String, String> entry : entryList) {
-                        randomizedMap.put(entry.getKey(), entry.getValue());
+                        extractedServers.put(entry.getKey(), entry.getValue());
                     }
 
-                    generateWidgets(randomizedMap, table);
+                    generateWidgets(extractedServers, table);
                 };
 
                 generateWidgets(extractedServers, table);
@@ -191,8 +191,8 @@ public class FindNewServersScreen extends WindowScreen {
         });
     }
 
-    public static Map<String, String> extractServerInfo(String jsonResponse) {
-        Map<String, String> serverInfo = new HashMap<>();
+    public static LinkedHashMap<String, String> extractServerInfo(String jsonResponse) {
+        LinkedHashMap<String, String> serverInfo = new LinkedHashMap<>();
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
