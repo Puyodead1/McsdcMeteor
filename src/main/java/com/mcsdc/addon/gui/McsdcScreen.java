@@ -30,7 +30,8 @@ public class McsdcScreen extends WindowScreen {
         }
 
         WTable accountList = add(theme.table()).expandX().widget();
-        accountList.add(theme.label(Http.post("https://interact.mcsdc.online/notice.txt").sendString()));
+        String notice = Http.post("https://interact.mcsdc.online/notice.txt").sendString();
+        accountList.add(theme.label(notice == null ? "No notice" : notice));
         accountList.row();
         accountList.add(theme.label("User: " + McsdcSystem.get().getUsername())).expandX();
         accountList.add(theme.label("Perms: " + McsdcSystem.get().getLevel())).expandX();
