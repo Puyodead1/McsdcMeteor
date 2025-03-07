@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-
 @Mixin(MultiplayerScreen.class)
 public abstract class MultiplayerScreenMixin extends Screen {
     @Shadow
@@ -55,7 +54,6 @@ public abstract class MultiplayerScreenMixin extends Screen {
                 .width(80)
                 .build()
         );
-
     }
 
     @Inject(method = "updateButtonActivationStates", at = @At("TAIL"))
