@@ -63,6 +63,15 @@ public class ServerInfoScreen extends WindowScreen {
                 table.row();
 
                 table.add(
+                    theme.label("Ip: %s".formatted(this.ip))
+                );
+                table.add(theme.button("Copy")).widget().action = () -> {
+                    MinecraftClient.getInstance().keyboard.setClipboard(this.ip);
+                };
+
+                table.row();
+
+                table.add(
                     theme.label("version: %s".formatted(jsonObject.get("version").getAsString()))
                 );
                 table.row();
