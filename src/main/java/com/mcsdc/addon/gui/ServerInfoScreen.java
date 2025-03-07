@@ -59,10 +59,17 @@ public class ServerInfoScreen extends WindowScreen {
 
                 WTable table = add(theme.table()).widget();
 
+                table.add(theme.horizontalSeparator("Info")).expandX().widget();
+                table.row();
+
                 table.add(
                     theme.label("version: %s".formatted(jsonObject.get("version").getAsString()))
                 );
                 table.row();
+
+                table.add(theme.horizontalSeparator("Status")).expandX().widget();
+                table.row();
+
                 table.add(
                     theme.label("visited: %s".formatted(jsonObject.get("status").getAsJsonObject().get("visited").getAsString()))
                 );
@@ -103,6 +110,9 @@ public class ServerInfoScreen extends WindowScreen {
 //                );
 //            }
 
+                table.add(theme.horizontalSeparator("Scanned")).expandX().widget();
+                table.row();
+
                 table.row();
                 table.add(
                     theme.label("last seen online: %s".formatted(timeAgo(jsonObject.get("last_seen_online").getAsLong())))
@@ -116,22 +126,22 @@ public class ServerInfoScreen extends WindowScreen {
                     theme.label("last joined: %s".formatted(timeAgo(jsonObject.get("last_joined").getAsLong()))));
                 table.row();
 
-                table.add(
-                    theme.label("Historical:")
-                );
-
                 WTable accounts = add(theme.table()).expandX().widget();
+                accounts.add(theme.horizontalSeparator("Historical")).expandX().widget();
+                accounts.row();
 
                 JsonArray array = JsonParser.parseString(response).getAsJsonObject().getAsJsonArray("historical");
-
-                for (JsonElement jsonElement : array) {
-                    String name = jsonElement.getAsJsonObject().get("name").getAsString();
-                    Main.LOG.info(name);
-                    accounts.add(theme.label(name)).expandX().widget();
-                    accounts.add(theme.button("Login")).expandX().widget().action = () -> {
-                        new CrackedAccount(name).login();
-                    };
-                    if (array.asList().getLast() != jsonElement) accounts.row();
+                if (array.isEmpty()) accounts.add(theme.label("No historical players found."));
+                else {
+                    for (JsonElement jsonElement : array) {
+                        String name = jsonElement.getAsJsonObject().get("name").getAsString();
+                        Main.LOG.info(name);
+                        accounts.add(theme.label(name)).expandX().widget();
+                        accounts.add(theme.button("Login")).expandX().widget().action = () -> {
+                            new CrackedAccount(name).login();
+                        };
+                        if (array.asList().getLast() != jsonElement) accounts.row();
+                    }
                 }
             });
         });
