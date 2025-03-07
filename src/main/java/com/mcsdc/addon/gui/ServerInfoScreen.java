@@ -148,6 +148,8 @@ public class ServerInfoScreen extends WindowScreen {
     }
 
     public static String timeAgo(long timestampMillis) {
+        if (timestampMillis == 0) return "never";
+
         long currentMillis = System.currentTimeMillis();
         long diffMillis = currentMillis - timestampMillis;
 
