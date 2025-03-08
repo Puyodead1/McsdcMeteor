@@ -65,6 +65,10 @@ public class FindPlayerScreen extends WindowScreen {
 
             }).thenAccept(response -> {
                 List<ServerStorage> extractedServers = extractServerInfo(response);
+                if (extractedServers.isEmpty()){
+                    add(theme.label("No servers found."));
+                    return;
+                }
 
                 add(theme.button("add all")).expandX().widget().action = () -> {
                     extractedServers.forEach((server) -> {
