@@ -13,7 +13,7 @@ public class McsdcSystem extends System<McsdcSystem> {
     private String token = "";
     private String username = "";
     private int level = -1;
-    private Map<String, String> recentServers = new LinkedHashMap<>();
+    private List<ServerStorage> recentServers = new ArrayList<>();
 
     public McsdcSystem() {
         super("McsdcSystem");
@@ -47,8 +47,17 @@ public class McsdcSystem extends System<McsdcSystem> {
         this.level = level;
     }
 
-    public Map<String, String> getRecentServers() {
+    public List<ServerStorage> getRecentServers() {
         return recentServers;
+    }
+
+    public ServerStorage getRecentServerWithIp(String ip){
+        for (ServerStorage server : recentServers){
+            if (Objects.equals(server.ip, ip)){
+                return server;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -60,10 +69,10 @@ public class McsdcSystem extends System<McsdcSystem> {
 
         NbtList list = new NbtList();
 
-        recentServers.forEach((ip, version) -> {
+        recentServers.forEach((server) -> {
             NbtCompound compound2 = new NbtCompound();
-            compound2.putString("ip", ip);
-            compound2.putString("version", version);
+            compound2.putString("ip", server.ip);
+            compound2.putString("version", server.version);
             list.add(compound2);
         });
 
@@ -85,18 +94,21 @@ public class McsdcSystem extends System<McsdcSystem> {
             String ip = compound.getString("ip");
             String ver = compound.getString("version");
 
-            recentServers.put(ip, ver);
+            recentServers.add(new ServerStorage(ip, ver));
         }
 
         // reverse servers to ensure they are in the correct order. or they would flip each time.
-        List<Map.Entry<String, String>> entryList = new ArrayList<>(recentServers.entrySet());
-        Collections.reverse(entryList);
-        recentServers.clear();
-
-        for (Map.Entry<String, String> entry : entryList) {
-            recentServers.put(entry.getKey(), entry.getValue());
-        }
+        Collections.reverse(recentServers);
 
         return super.fromTag(tag);
+    }
+
+    public static class ServerStorage {
+        public String ip, version;
+
+        public ServerStorage(String ip, String version){
+            this.ip = ip;
+            this.version = version;
+        }
     }
 }

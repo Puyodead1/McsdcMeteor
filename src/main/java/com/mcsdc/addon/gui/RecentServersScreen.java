@@ -48,16 +48,13 @@ public class RecentServersScreen extends WindowScreen {
         table.add(theme.horizontalSeparator()).expandX();
 
         // Reverse list so most recent shows at the top
-        List<Map.Entry<String, String>> entryList = new ArrayList<>(McsdcSystem.get().getRecentServers().entrySet());
-        Map<String, String> reversed = new LinkedHashMap<>();
+        List<McsdcSystem.ServerStorage> reversed = McsdcSystem.get().getRecentServers();
+        Collections.reverse(reversed);
 
-        Collections.reverse(entryList);
+        reversed.forEach((serverStorage) -> {
+            String serverIP = serverStorage.ip;
+            String serverVersion = serverStorage.version;
 
-        for (Map.Entry<String, String> entry : entryList) {
-            reversed.put(entry.getKey(), entry.getValue());
-        }
-
-        reversed.forEach((serverIP, serverVersion) -> {
             table.row();
             table.add(theme.label(serverIP)).expandX();
             table.add(theme.label(serverVersion)).expandX();
@@ -85,7 +82,7 @@ public class RecentServersScreen extends WindowScreen {
 
             WButton removeServerButton = theme.button("Remove Server");
             removeServerButton.action = () -> {
-                McsdcSystem.get().getRecentServers().remove(serverIP, serverVersion);
+                McsdcSystem.get().getRecentServers().remove(serverStorage);
                 reload();
             };
 

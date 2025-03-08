@@ -17,7 +17,16 @@ public class ConnectScreenMixin {
 
     @Inject(method = "connect(Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/network/ServerAddress;Lnet/minecraft/client/network/ServerInfo;Lnet/minecraft/client/network/CookieStorage;)V", at = @At("HEAD"), cancellable = true)
     private void onConnect(MinecraftClient client, ServerAddress address, ServerInfo info, CookieStorage cookieStorage, CallbackInfo ci){
-        McsdcSystem.get().getRecentServers().put(info.address, info.version.getLiteralString());
+        McsdcSystem system = McsdcSystem.get();
+        McsdcSystem.ServerStorage server = system.getRecentServerWithIp(info.address);
+
+        if (system.getRecentServers().contains(server)){
+            system.getRecentServers().remove(server);
+            system.getRecentServers().add(server);
+            return;
+        }
+
+        system.getRecentServers().add(new McsdcSystem.ServerStorage(info.address, info.version.getString()));
     }
 
 }
