@@ -79,6 +79,13 @@ public class FindNewServersScreen extends WindowScreen {
         .build()
     );
 
+    private final Setting<Boolean> vanilla = sg.add(new BoolSetting.Builder()
+        .name("vanilla")
+        .description("")
+        .defaultValue(false)
+        .build()
+    );
+
     private final Setting<VersionEnum> versionSetting = sg.add(new EnumSetting.Builder<VersionEnum>()
         .name("version")
         .description("")
@@ -114,7 +121,12 @@ public class FindNewServersScreen extends WindowScreen {
                     .formatted((versionSetting.get().number == -1) ? null : versionSetting.get().getNumber(), visitedSetting.get(), griefedSetting.get(), moddedSetting.get(), savedSetting.get(), whitelistSetting.get(), activeSetting.get(), crackedSetting.get());
 
                 int versionNumber = versionSetting.get().getNumber();
-                if (versionNumber != -1){
+                if (versionNumber != 1 && !vanilla.get()){
+                    string = "{\"search\":{\"version\":{\"protocol\": %s},\"flags\":{\"visited\":%s,\"griefed\":%s,\"modded\":%s,\"saved\":%s,\"whitelist\":%s,\"active\":%s,\"cracked\":%s}}}"
+                        .formatted(versionNumber, visitedSetting.get(), griefedSetting.get(), moddedSetting.get(), savedSetting.get(), whitelistSetting.get(), activeSetting.get(), crackedSetting.get());
+                }
+
+                if (versionNumber != -1 && vanilla.get()){
                     string = "{\"search\":{\"version\":{\"name\":\"%s\"},\"flags\":{\"visited\":false,\"griefed\":false,\"modded\":false,\"saved\":false,\"whitelist\":false,\"active\":false,\"cracked\":false}}}"
                         .formatted(versionSetting.get().getVersion(), visitedSetting.get(), griefedSetting.get(), moddedSetting.get(), savedSetting.get(), whitelistSetting.get(), activeSetting.get(), crackedSetting.get());
 
@@ -123,6 +135,11 @@ public class FindNewServersScreen extends WindowScreen {
                 String response = Http.post(Main.mainEndpoint).bodyJson(string).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendString();
                 return response;
             }).thenAccept(response -> {
+                if (response == null){
+                    add(theme.label("No servers found."));
+                    return;
+                }
+
                 Map<String, String> extractedServers = extractServerInfo(response);
                 WHorizontalList buttons = add(theme.horizontalList()).expandX().widget();
                 WTable table = add(theme.table()).widget();
