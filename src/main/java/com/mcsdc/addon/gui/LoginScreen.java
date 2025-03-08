@@ -12,7 +12,7 @@ import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.settings.Settings;
 import meteordevelopment.meteorclient.settings.StringSetting;
 import meteordevelopment.meteorclient.utils.network.Http;
-import net.minidev.json.JSONObject;
+import net.minecraft.client.MinecraftClient;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -77,17 +77,19 @@ public class LoginScreen extends WindowScreen {
 
                 return map;
             }).thenAccept(response -> {
-                if (response == null) return;
+                MinecraftClient.getInstance().execute(() -> {
+                    if (response == null) return;
 
-                String extractedName = response.keySet().iterator().next();
-                int extractedPerms = response.get(extractedName);
+                    String extractedName = response.keySet().iterator().next();
+                    int extractedPerms = response.get(extractedName);
 
-                McsdcSystem.get().setToken(tokenSetting.get());
-                McsdcSystem.get().setUsername(extractedName);
-                McsdcSystem.get().setLevel(extractedPerms);
+                    McsdcSystem.get().setToken(tokenSetting.get());
+                    McsdcSystem.get().setUsername(extractedName);
+                    McsdcSystem.get().setLevel(extractedPerms);
 
-                mc.setScreen(this.parent);
-                this.parent.reload();
+                    mc.setScreen(this.parent);
+                    this.parent.reload();
+                });
             });
         };
     }
