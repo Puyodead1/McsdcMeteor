@@ -1,8 +1,7 @@
 package com.mcsdc.addon.gui;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
 import com.mcsdc.addon.Main;
 import com.mcsdc.addon.system.McsdcSystem;
 import com.mcsdc.addon.system.ServerStorage;
@@ -125,21 +124,13 @@ public class FindPlayerScreen extends WindowScreen {
 
     public static List<ServerStorage> extractServerInfo(String jsonResponse) {
         List<ServerStorage> serverStorageList = new ArrayList<>();
-        ObjectMapper objectMapper = new ObjectMapper();
+        JsonArray array = JsonParser.parseString(jsonResponse).getAsJsonArray();
 
-        try {
-            // Parse JSON array
-            List<JsonNode> servers = objectMapper.readValue(jsonResponse, new TypeReference<List<JsonNode>>() {});
-
-            // Loop through each server object and extract "address" and "version"
-            for (JsonNode server : servers) {
-                String address = server.get("address").asText();
-                String version = server.get("version").asText();
-                serverStorageList.add(new ServerStorage(address, version));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        array.forEach(node -> {
+            String address = node.getAsJsonObject().get("address").getAsString();
+            String version = node.getAsJsonObject().get("version").getAsString();
+            serverStorageList.add(new ServerStorage(address, version));
+        });
 
         return serverStorageList;
     }
