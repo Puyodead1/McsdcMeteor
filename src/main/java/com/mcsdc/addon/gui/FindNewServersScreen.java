@@ -1,11 +1,10 @@
 package com.mcsdc.addon.gui;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
 import com.mcsdc.addon.Main;
 import com.mcsdc.addon.system.McsdcSystem;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mcsdc.addon.system.ServerStorage;
 import meteordevelopment.meteorclient.gui.GuiThemes;
 import meteordevelopment.meteorclient.gui.WindowScreen;
 import meteordevelopment.meteorclient.gui.widgets.containers.WContainer;
@@ -21,7 +20,9 @@ import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class FindNewServersScreen extends WindowScreen {
@@ -110,42 +111,75 @@ public class FindNewServersScreen extends WindowScreen {
         add(theme.button("search")).expandX().widget().action = () -> {
             reload();
 
-            if (!visitedSetting.get() && !moddedSetting.get() && !whitelistSetting.get() && !crackedSetting.get()
-            && !griefedSetting.get() && !savedSetting.get() && !activeSetting.get() && versionSetting.get().number == -1){
-                add(theme.label("An everything seach is not allowed!"));
-                return;
-            }
-
             CompletableFuture.supplyAsync(() -> {
-                String string = "{\"search\":{\"version\":%s,\"flags\":{\"visited\":%s,\"griefed\":%s,\"modded\":%s,\"saved\":%s,\"whitelist\":%s,\"active\":%s,\"cracked\":%s}}}"
-                    .formatted((versionSetting.get().number == -1) ? null : versionSetting.get().getNumber(), visitedSetting.get(), griefedSetting.get(), moddedSetting.get(), savedSetting.get(), whitelistSetting.get(), activeSetting.get(), crackedSetting.get());
+                String string = """
+                                          {
+                                          "search": {
+                                            "version": null,
+                                            "flags": {
+                                              "visited": %s,
+                                              "griefed": %s,
+                                              "modded": %s,
+                                              "saved": %s,
+                                              "whitelist": %s,
+                                              "active": %s,
+                                              "cracked": %s
+                                            }
+                                          }
+                                        }""".formatted(visitedSetting.get(), griefedSetting.get(), moddedSetting.get(), savedSetting.get(), whitelistSetting.get(), activeSetting.get(), crackedSetting.get());
 
-                int versionNumber = versionSetting.get().getNumber();
-                if (versionNumber != 1 && !vanilla.get()){
-                    string = "{\"search\":{\"version\":{\"protocol\": %s},\"flags\":{\"visited\":%s,\"griefed\":%s,\"modded\":%s,\"saved\":%s,\"whitelist\":%s,\"active\":%s,\"cracked\":%s}}}"
-                        .formatted(versionNumber, visitedSetting.get(), griefedSetting.get(), moddedSetting.get(), savedSetting.get(), whitelistSetting.get(), activeSetting.get(), crackedSetting.get());
+                if (versionSetting.get().number != -1 && !vanilla.get()){
+                    string = """
+                        {
+                          "search": {
+                            "version": {
+                              "protocol": %s
+                            },
+                            "flags": {
+                              "visited": %s,
+                              "griefed": %s,
+                              "modded": %s,
+                              "saved": %s,
+                              "whitelist": %s,
+                              "active": %s,
+                              "cracked": %s
+                            }
+                          }
+                        }""".formatted(versionSetting.get().number, visitedSetting.get(), griefedSetting.get(), moddedSetting.get(), savedSetting.get(), whitelistSetting.get(), activeSetting.get(), crackedSetting.get());;
+                } else if (versionSetting.get().number != -1 && vanilla.get()) {
+                    string = """
+                        {
+                          "search": {
+                            "version": {
+                              "name": "%s"
+                            },
+                            "flags": {
+                              "visited": %s,
+                              "griefed": %s,
+                              "modded": %s,
+                              "saved": %s,
+                              "whitelist": %s,
+                              "active": %s,
+                              "cracked": %s
+                            }
+                          }
+                        }""".formatted(versionSetting.get().getVersion(), visitedSetting.get(), griefedSetting.get(), moddedSetting.get(), savedSetting.get(), whitelistSetting.get(), activeSetting.get(), crackedSetting.get());;;
                 }
 
-                if (versionNumber != -1 && vanilla.get()){
-                    string = "{\"search\":{\"version\":{\"name\":\"%s\"},\"flags\":{\"visited\":false,\"griefed\":false,\"modded\":false,\"saved\":false,\"whitelist\":false,\"active\":false,\"cracked\":false}}}"
-                        .formatted(versionSetting.get().getVersion(), visitedSetting.get(), griefedSetting.get(), moddedSetting.get(), savedSetting.get(), whitelistSetting.get(), activeSetting.get(), crackedSetting.get());
-
-                }
-
-                String response = Http.post(Main.mainEndpoint).bodyJson(string).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendString();
+                String response = Http.post(Main.mainEndpoint).bodyString(string).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendStringResponse().body();
                 return response;
             }).thenAccept(response -> {
-                if (response == null){
+                List<ServerStorage> extractedServers = extractServerInfo(response);
+                if (extractedServers.isEmpty()){
                     add(theme.label("No servers found."));
                     return;
                 }
 
-                Map<String, String> extractedServers = extractServerInfo(response);
                 WHorizontalList buttons = add(theme.horizontalList()).expandX().widget();
                 WTable table = add(theme.table()).widget();
                 buttons.add(theme.button("add all")).expandX().widget().action = () -> {
-                    extractedServers.forEach((serverIP, serverVersion) -> {
-                        ServerInfo info = new ServerInfo("Mcsdc " + serverIP, serverIP, ServerInfo.ServerType.OTHER);
+                    extractedServers.forEach((server) -> {
+                        ServerInfo info = new ServerInfo("Mcsdc " + server.ip, server.version, ServerInfo.ServerType.OTHER);
                         multiplayerScreen.getServerList().add(info, false);
                     });
                     multiplayerScreen.getServerList().saveFile();
@@ -153,14 +187,7 @@ public class FindNewServersScreen extends WindowScreen {
                 };
 
                 buttons.add(theme.button("randomize")).expandX().widget().action = () -> {
-                    List<Map.Entry<String, String>> entryList = new ArrayList<>(extractedServers.entrySet());
-
-                    Collections.shuffle(entryList);
-                    extractedServers.clear();
-
-                    for (Map.Entry<String, String> entry : entryList) {
-                        extractedServers.put(entry.getKey(), entry.getValue());
-                    }
+                    Collections.shuffle(extractedServers);
 
                     generateWidgets(extractedServers, table);
                 };
@@ -171,7 +198,7 @@ public class FindNewServersScreen extends WindowScreen {
         };
     }
 
-    public void generateWidgets(Map<String, String> extractedServers, final WTable table){
+    public void generateWidgets(List<ServerStorage> extractedServers, final WTable table){
         MinecraftClient.getInstance().execute(() -> {
             table.clear();
 
@@ -182,7 +209,10 @@ public class FindNewServersScreen extends WindowScreen {
             table.row();
 
             // Iterate through the extracted server data
-            extractedServers.forEach((serverIP, serverVersion) -> {
+            extractedServers.forEach((server) -> {
+                String serverIP = server.ip;
+                String serverVersion = server.version;
+
                 table.add(theme.label(serverIP));
                 table.add(theme.label(serverVersion));
 
@@ -214,25 +244,17 @@ public class FindNewServersScreen extends WindowScreen {
         });
     }
 
-    public static LinkedHashMap<String, String> extractServerInfo(String jsonResponse) {
-        LinkedHashMap<String, String> serverInfo = new LinkedHashMap<>();
-        ObjectMapper objectMapper = new ObjectMapper();
+    public static List<ServerStorage> extractServerInfo(String jsonResponse) {
+        List<ServerStorage> serverStorageList = new ArrayList<>();
+        JsonArray jsonObject = JsonParser.parseString(jsonResponse).getAsJsonArray();
 
-        try {
-            // Parse JSON array
-            List<JsonNode> servers = objectMapper.readValue(jsonResponse, new TypeReference<List<JsonNode>>() {});
+        jsonObject.forEach(node -> {
+            String address = node.getAsJsonObject().get("address").getAsString();
+            String version = node.getAsJsonObject().get("version").getAsString();
+            serverStorageList.add(new ServerStorage(address, version));
+        });
 
-            // Loop through each server object and extract "address" and "version"
-            for (JsonNode server : servers) {
-                String address = server.get("address").asText();
-                String version = server.get("version").asText();
-                serverInfo.put(address, version);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return serverInfo;
+        return serverStorageList;
     }
 
     public enum VersionEnum {

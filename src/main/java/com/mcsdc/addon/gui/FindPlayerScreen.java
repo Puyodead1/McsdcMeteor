@@ -3,14 +3,18 @@ package com.mcsdc.addon.gui;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mcsdc.addon.Main;
 import com.mcsdc.addon.system.McsdcSystem;
+import com.mcsdc.addon.system.ServerStorage;
 import meteordevelopment.meteorclient.gui.GuiThemes;
 import meteordevelopment.meteorclient.gui.WindowScreen;
-import com.mcsdc.addon.Main;
 import meteordevelopment.meteorclient.gui.widgets.containers.WContainer;
 import meteordevelopment.meteorclient.gui.widgets.containers.WTable;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WButton;
-import meteordevelopment.meteorclient.settings.*;
+import meteordevelopment.meteorclient.settings.Setting;
+import meteordevelopment.meteorclient.settings.SettingGroup;
+import meteordevelopment.meteorclient.settings.Settings;
+import meteordevelopment.meteorclient.settings.StringSetting;
 import meteordevelopment.meteorclient.utils.network.Http;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.TitleScreen;
@@ -19,9 +23,8 @@ import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class FindPlayerScreen extends WindowScreen {
@@ -58,15 +61,15 @@ public class FindPlayerScreen extends WindowScreen {
                 String string = "{\"search\":{\"player\":\"%s\"}}"
                     .formatted(this.playerSetting.get());
 
-                String response = Http.post(Main.mainEndpoint).bodyJson(string).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendString();
+                String response = Http.post(Main.mainEndpoint).bodyJson(string).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendStringResponse().body();
                 return response;
 
             }).thenAccept(response -> {
-                Map<String, String> extractedServers = extractServerInfo(response);
+                List<ServerStorage> extractedServers = extractServerInfo(response);
 
                 add(theme.button("add all")).expandX().widget().action = () -> {
-                    extractedServers.forEach((serverIP, serverVersion) -> {
-                        ServerInfo info = new ServerInfo("Mcsdc " + serverIP, serverIP, ServerInfo.ServerType.OTHER);
+                    extractedServers.forEach((server) -> {
+                        ServerInfo info = new ServerInfo("Mcsdc " + server.ip, server.version, ServerInfo.ServerType.OTHER);
                         multiplayerScreen.getServerList().add(info, false);
                     });
                     multiplayerScreen.getServerList().saveFile();
@@ -83,7 +86,10 @@ public class FindPlayerScreen extends WindowScreen {
                     table.row();
 
                     // Iterate through the extracted server data
-                    extractedServers.forEach((serverIP, serverVersion) -> {
+                    extractedServers.forEach((server) -> {
+                        String serverIP = server.ip;
+                        String serverVersion = server.version;
+
                         table.add(theme.label(serverIP));
                         table.add(theme.label(serverVersion));
 
@@ -117,8 +123,8 @@ public class FindPlayerScreen extends WindowScreen {
         };
     }
 
-    public static Map<String, String> extractServerInfo(String jsonResponse) {
-        Map<String, String> serverInfo = new HashMap<>();
+    public static List<ServerStorage> extractServerInfo(String jsonResponse) {
+        List<ServerStorage> serverStorageList = new ArrayList<>();
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
@@ -129,12 +135,12 @@ public class FindPlayerScreen extends WindowScreen {
             for (JsonNode server : servers) {
                 String address = server.get("address").asText();
                 String version = server.get("version").asText();
-                serverInfo.put(address, version);
+                serverStorageList.add(new ServerStorage(address, version));
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return serverInfo;
+        return serverStorageList;
     }
 }

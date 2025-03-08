@@ -1,13 +1,15 @@
 package com.mcsdc.addon.system;
 
-import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.systems.System;
 import meteordevelopment.meteorclient.systems.Systems;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 public class McsdcSystem extends System<McsdcSystem> {
     private String token = "";
@@ -101,14 +103,5 @@ public class McsdcSystem extends System<McsdcSystem> {
         Collections.reverse(recentServers);
 
         return super.fromTag(tag);
-    }
-
-    public static class ServerStorage {
-        public String ip, version;
-
-        public ServerStorage(String ip, String version){
-            this.ip = ip;
-            this.version = version;
-        }
     }
 }

@@ -1,11 +1,8 @@
 package com.mcsdc.addon.gui;
 
-import com.mcsdc.addon.Main;
 import com.mcsdc.addon.system.McsdcSystem;
-import com.mojang.datafixers.kinds.IdF;
-import meteordevelopment.meteorclient.gui.GuiTheme;
+import com.mcsdc.addon.system.ServerStorage;
 import meteordevelopment.meteorclient.gui.GuiThemes;
-import meteordevelopment.meteorclient.gui.WidgetScreen;
 import meteordevelopment.meteorclient.gui.WindowScreen;
 import meteordevelopment.meteorclient.gui.widgets.containers.WTable;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WButton;
@@ -16,7 +13,8 @@ import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 public class RecentServersScreen extends WindowScreen {
     MultiplayerScreen multiplayerScreen;
@@ -48,7 +46,7 @@ public class RecentServersScreen extends WindowScreen {
         table.add(theme.horizontalSeparator()).expandX();
 
         // Reverse list so most recent shows at the top
-        List<McsdcSystem.ServerStorage> reversed = McsdcSystem.get().getRecentServers();
+        List<ServerStorage> reversed = McsdcSystem.get().getRecentServers();
         Collections.reverse(reversed);
 
         reversed.forEach((serverStorage) -> {
