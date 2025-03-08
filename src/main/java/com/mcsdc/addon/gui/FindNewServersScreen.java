@@ -101,6 +101,7 @@ public class FindNewServersScreen extends WindowScreen {
         this.multiplayerScreen = multiplayerScreen;
     }
 
+    List<ServerStorage> extractedServers;
     @Override
     public void initWidgets() {
         WContainer settingsContainer = add(theme.verticalList()).widget();
@@ -169,7 +170,7 @@ public class FindNewServersScreen extends WindowScreen {
                 String response = Http.post(Main.mainEndpoint).bodyString(string).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendStringResponse().body();
                 return response;
             }).thenAccept(response -> {
-                List<ServerStorage> extractedServers = extractServerInfo(response);
+                extractedServers = extractServerInfo(response);
                 if (extractedServers.isEmpty()){
                     add(theme.label("No servers found."));
                     return;
@@ -179,7 +180,7 @@ public class FindNewServersScreen extends WindowScreen {
                 WTable table = add(theme.table()).widget();
                 buttons.add(theme.button("add all")).expandX().widget().action = () -> {
                     extractedServers.forEach((server) -> {
-                        ServerInfo info = new ServerInfo("Mcsdc " + server.ip, server.version, ServerInfo.ServerType.OTHER);
+                        ServerInfo info = new ServerInfo("Mcsdc " + server.ip, server.ip, ServerInfo.ServerType.OTHER);
                         multiplayerScreen.getServerList().add(info, false);
                     });
                     multiplayerScreen.getServerList().saveFile();
