@@ -4,11 +4,9 @@ import com.mcsdc.addon.system.McsdcSystem;
 import meteordevelopment.meteorclient.gui.GuiThemes;
 import meteordevelopment.meteorclient.gui.WindowScreen;
 import meteordevelopment.meteorclient.gui.widgets.containers.WHorizontalList;
-import com.mcsdc.addon.Main;
 import meteordevelopment.meteorclient.gui.widgets.containers.WTable;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WButton;
 import meteordevelopment.meteorclient.utils.network.Http;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 
 
@@ -83,6 +81,6 @@ public class McsdcScreen extends WindowScreen {
     @Override
     public void close() {
         super.close();
-        MinecraftClient.getInstance().setScreen(new MultiplayerScreen(null));
+        this.client.setScreen(new MultiplayerScreen(null));
     }
 }
