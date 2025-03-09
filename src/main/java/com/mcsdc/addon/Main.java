@@ -3,16 +3,13 @@ package com.mcsdc.addon;
 import com.mojang.logging.LogUtils;
 import meteordevelopment.meteorclient.addons.GithubRepo;
 import meteordevelopment.meteorclient.addons.MeteorAddon;
-import meteordevelopment.meteorclient.systems.Systems;
+import net.minecraft.client.MinecraftClient;
 import org.slf4j.Logger;
-
-import java.security.PublicKey;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Main extends MeteorAddon {
     public static final Logger LOG = LogUtils.getLogger();
     public static String mainEndpoint = "https://interact.mcsdc.online/api";
+    public static MinecraftClient mc = MinecraftClient.getInstance();
 
     @Override
     public void onInitialize() {

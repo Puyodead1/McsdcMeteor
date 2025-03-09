@@ -1,31 +1,20 @@
 package com.mcsdc.addon.gui;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mcsdc.addon.Main;
 import com.mcsdc.addon.system.McsdcSystem;
-import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-
 import meteordevelopment.meteorclient.gui.GuiThemes;
 import meteordevelopment.meteorclient.gui.WindowScreen;
-import meteordevelopment.meteorclient.gui.widgets.containers.WHorizontalList;
 import meteordevelopment.meteorclient.gui.widgets.containers.WTable;
 import meteordevelopment.meteorclient.systems.accounts.types.CrackedAccount;
 import meteordevelopment.meteorclient.utils.network.Http;
-import com.google.gson.JsonParser;
-import net.minecraft.client.MinecraftClient;
+
+import java.net.http.HttpResponse;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 public class ServerInfoScreen extends WindowScreen {
 
@@ -54,7 +43,7 @@ public class ServerInfoScreen extends WindowScreen {
 
             return response.body();
         }).thenAccept(response -> {
-            MinecraftClient.getInstance().execute(() -> {
+            Main.mc.execute(() -> {
                 JsonObject jsonObject = JsonParser.parseString(response).getAsJsonObject();
 
                 WTable table = add(theme.table()).widget();
@@ -66,7 +55,7 @@ public class ServerInfoScreen extends WindowScreen {
                     theme.label("Ip: %s".formatted(this.ip))
                 );
                 table.add(theme.button("Copy")).widget().action = () -> {
-                    MinecraftClient.getInstance().keyboard.setClipboard(this.ip);
+                    Main.mc.keyboard.setClipboard(this.ip);
                 };
 
                 table.row();

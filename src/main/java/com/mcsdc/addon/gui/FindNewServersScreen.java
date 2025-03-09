@@ -15,7 +15,6 @@ import meteordevelopment.meteorclient.gui.widgets.containers.WTable;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WButton;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.utils.network.Http;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
@@ -166,7 +165,7 @@ public class FindNewServersScreen extends WindowScreen {
 
                 return Http.post(Main.mainEndpoint).bodyString(jsonString.toString()).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendStringResponse().body();
             }).thenAccept(response -> {
-                MinecraftClient.getInstance().execute(() -> {
+                Main.mc.execute(() -> {
                     searching = false;
                     reload();
 
@@ -207,7 +206,7 @@ public class FindNewServersScreen extends WindowScreen {
     }
 
     public void generateWidgets(List<ServerStorage> extractedServers, final WTable table){
-        MinecraftClient.getInstance().execute(() -> {
+        Main.mc.execute(() -> {
             table.clear();
 
             table.add(theme.label("Server IP"));
@@ -235,12 +234,12 @@ public class FindNewServersScreen extends WindowScreen {
 
                 WButton joinServerButton = theme.button("Join Server");
                 joinServerButton.action = () ->
-                    ConnectScreen.connect(new MultiplayerScreen(new TitleScreen()), MinecraftClient.getInstance(),
+                    ConnectScreen.connect(new MultiplayerScreen(new TitleScreen()), Main.mc,
                         ServerAddress.parse(serverIP), new ServerInfo("", serverIP, ServerInfo.ServerType.OTHER), false, null);
 
                 WButton serverInfoButton = theme.button("Server Info");
                 serverInfoButton.action = () -> {
-                    MinecraftClient.getInstance().setScreen(new ServerInfoScreen(serverIP));
+                    Main.mc.setScreen(new ServerInfoScreen(serverIP));
                 };
 
                 table.add(addServerButton);

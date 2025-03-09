@@ -17,7 +17,6 @@ import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.settings.Settings;
 import meteordevelopment.meteorclient.settings.StringSetting;
 import meteordevelopment.meteorclient.utils.network.Http;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
@@ -99,7 +98,7 @@ public class FindPlayerScreen extends WindowScreen {
                     multiplayerScreen.getServerList().loadFile();
                 };
 
-                MinecraftClient.getInstance().execute(() -> {
+                Main.mc.execute(() -> {
                     WTable table = add(theme.table()).widget();
 
                     table.add(theme.label("Server IP"));
@@ -127,13 +126,13 @@ public class FindPlayerScreen extends WindowScreen {
 
                         WButton joinServerButton = theme.button("Join Server");
                         joinServerButton.action = () ->
-                            ConnectScreen.connect(new MultiplayerScreen(new TitleScreen()), MinecraftClient.getInstance(),
+                            ConnectScreen.connect(new MultiplayerScreen(new TitleScreen()), Main.mc,
                                 ServerAddress.parse(serverIP), new ServerInfo("", serverIP, ServerInfo.ServerType.OTHER), false, null);
 
 
                         WButton serverInfoButton = theme.button("Server Info");
                         serverInfoButton.action = () -> {
-                            MinecraftClient.getInstance().setScreen(new ServerInfoScreen(serverIP));
+                            Main.mc.setScreen(new ServerInfoScreen(serverIP));
                         };
 
                         table.add(addServerButton);

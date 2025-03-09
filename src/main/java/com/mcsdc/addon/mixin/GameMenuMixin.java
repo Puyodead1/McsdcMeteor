@@ -1,7 +1,7 @@
 package com.mcsdc.addon.mixin;
 
+import com.mcsdc.addon.Main;
 import com.mcsdc.addon.gui.ServerInfoScreen;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
@@ -27,16 +27,15 @@ public class GameMenuMixin extends Screen {
 
     @Inject(method = "initWidgets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/GridWidget$Adder;add(Lnet/minecraft/client/gui/widget/Widget;I)Lnet/minecraft/client/gui/widget/Widget;", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
     private void oninitWidgets(CallbackInfo ci, GridWidget gridWidget, GridWidget.Adder adder, Text text){
-        MinecraftClient mc = MinecraftClient.getInstance();
-        ServerInfo info = mc.getNetworkHandler().getServerInfo();
+        ServerInfo info = Main.mc.getNetworkHandler().getServerInfo();
 
         adder.add(ButtonWidget.builder(Text.literal("Info"), (button) -> {
-            mc.setScreen(new ServerInfoScreen(info.address));
+            Main.mc.setScreen(new ServerInfoScreen(info.address));
         }).width(204).build(), 2);
 
         adder.add(ButtonWidget.builder(Text.literal("Reconnect"), (button) -> {
-            MinecraftClient.getInstance().world.disconnect();
-            ConnectScreen.connect(new MultiplayerScreen(new TitleScreen()), mc,
+            Main.mc.world.disconnect();
+            ConnectScreen.connect(new MultiplayerScreen(new TitleScreen()), Main.mc,
                 ServerAddress.parse(info.address), info, false, null);
 
         }).width(204).build(), 2);
