@@ -166,19 +166,22 @@ public class FindNewServersScreen extends WindowScreen {
 
                 return Http.post(Main.mainEndpoint).bodyString(jsonString.toString()).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendStringResponse().body();
             }).thenAccept(response -> {
-                searching = false;
-                if (response == null || extractedServers.isEmpty()){
-                    add(theme.label("No servers found.")).expandX().widget();
-                    return;
-                }
-
-                if (response.endsWith(",]")){ // depending on the search, response can be slightly malformed.
-                    response = response.substring(0, response.length() - 2) + "]";
-                }
-
-                extractedServers = extractServerInfo(response);
-
                 MinecraftClient.getInstance().execute(() -> {
+                    searching = false;
+                    reload();
+
+                    // some janky shit because it complains
+                    String res = response;
+                    if (response.endsWith(",]")){ // depending on the search, response can be slightly malformed.
+                        res = response.substring(0, response.length() - 2) + "]";
+                    }
+
+                    extractedServers = extractServerInfo(res);
+                    if (res == null || extractedServers.isEmpty()){
+                        add(theme.label("No servers found.")).expandX().widget();
+                        return;
+                    }
+
                     WHorizontalList buttons = add(theme.horizontalList()).expandX().widget();
                     WTable table = add(theme.table()).widget();
                     buttons.add(theme.button("add all")).expandX().widget().action = () -> {
