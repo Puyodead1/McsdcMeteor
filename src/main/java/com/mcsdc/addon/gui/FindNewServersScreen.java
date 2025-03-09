@@ -159,8 +159,6 @@ public class FindNewServersScreen extends WindowScreen {
                     searching = false;
                     reload();
 
-                    Main.LOG.info(response);
-
                     // some janky shit because it complains
                     String res = response;
                     if (response.endsWith(",]")){ // depending on the search, response can be slightly malformed.
