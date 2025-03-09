@@ -1,9 +1,9 @@
 package com.mcsdc.addon.gui;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.mcsdc.addon.Main;
 import com.mcsdc.addon.system.McsdcSystem;
+import com.mcsdc.addon.system.ServerSearchBuilder;
 import com.mcsdc.addon.system.ServerStorage;
 import meteordevelopment.meteorclient.gui.GuiThemes;
 import meteordevelopment.meteorclient.gui.WindowScreen;
@@ -30,53 +30,54 @@ public class FindNewServersScreen extends WindowScreen {
 
     private final Settings settings = new Settings();
     private final SettingGroup sg = settings.getDefaultGroup();
+    private boolean searching = false;
 
-    private final Setting<Boolean> visitedSetting = sg.add(new BoolSetting.Builder()
+    private final Setting<Flags> visitedSetting = sg.add(new EnumSetting.Builder<Flags>()
         .name("visited")
         .description("")
-        .defaultValue(false)
+        .defaultValue(Flags.ANY)
         .build()
     );
 
-    private final Setting<Boolean> moddedSetting = sg.add(new BoolSetting.Builder()
+    private final Setting<Flags> moddedSetting = sg.add(new EnumSetting.Builder<Flags>()
         .name("modded")
         .description("")
-        .defaultValue(false)
+        .defaultValue(Flags.ANY)
         .build()
     );
 
-    private final Setting<Boolean> whitelistSetting = sg.add(new BoolSetting.Builder()
+    private final Setting<Flags> whitelistSetting = sg.add(new EnumSetting.Builder<Flags>()
         .name("whitelist")
         .description("")
-        .defaultValue(false)
+        .defaultValue(Flags.ANY)
         .build()
     );
 
-    private final Setting<Boolean> crackedSetting = sg.add(new BoolSetting.Builder()
+    private final Setting<Flags> crackedSetting = sg.add(new EnumSetting.Builder<Flags>()
         .name("cracked")
         .description("")
-        .defaultValue(false)
+        .defaultValue(Flags.ANY)
         .build()
     );
 
-    private final Setting<Boolean> griefedSetting = sg.add(new BoolSetting.Builder()
+    private final Setting<Flags> griefedSetting = sg.add(new EnumSetting.Builder<Flags>()
         .name("griefed")
         .description("")
-        .defaultValue(false)
+        .defaultValue(Flags.ANY)
         .build()
     );
 
-    private final Setting<Boolean> savedSetting = sg.add(new BoolSetting.Builder()
+    private final Setting<Flags> savedSetting = sg.add(new EnumSetting.Builder<Flags>()
         .name("saved")
         .description("")
-        .defaultValue(false)
+        .defaultValue(Flags.ANY)
         .build()
     );
 
-    private final Setting<Boolean> activeSetting = sg.add(new BoolSetting.Builder()
+    private final Setting<Flags> activeSetting = sg.add(new EnumSetting.Builder<Flags>()
         .name("active")
         .description("")
-        .defaultValue(false)
+        .defaultValue(Flags.ANY)
         .build()
     );
 
@@ -110,92 +111,89 @@ public class FindNewServersScreen extends WindowScreen {
         this.settingsContainer = settingsContainer;
 
         add(theme.button("search")).expandX().widget().action = () -> {
+            if (searching) return;
             reload();
 
+            if (visitedSetting.get().bool == null && griefedSetting.get().bool  == null && moddedSetting.get().bool  == null && savedSetting.get().bool  == null && whitelistSetting.get().bool  == null && activeSetting.get().bool == null && crackedSetting.get().bool  == null &&
+                versionSetting.get().number == -1){
+                add(theme.label("Everything searches are not allowed."));
+                return;
+            }
+
             CompletableFuture.supplyAsync(() -> {
-                String string = """
-                                          {
-                                          "search": {
-                                            "version": null,
-                                            "flags": {
-                                              "visited": %s,
-                                              "griefed": %s,
-                                              "modded": %s,
-                                              "saved": %s,
-                                              "whitelist": %s,
-                                              "active": %s,
-                                              "cracked": %s
-                                            }
-                                          }
-                                        }""".formatted(visitedSetting.get(), griefedSetting.get(), moddedSetting.get(), savedSetting.get(), whitelistSetting.get(), activeSetting.get(), crackedSetting.get());
+                searching = true;
+                add(theme.label("Searching..."));
 
-                if (versionSetting.get().number != -1 && !vanilla.get()){
-                    string = """
-                        {
-                          "search": {
-                            "version": {
-                              "protocol": %s
-                            },
-                            "flags": {
-                              "visited": %s,
-                              "griefed": %s,
-                              "modded": %s,
-                              "saved": %s,
-                              "whitelist": %s,
-                              "active": %s,
-                              "cracked": %s
-                            }
-                          }
-                        }""".formatted(versionSetting.get().number, visitedSetting.get(), griefedSetting.get(), moddedSetting.get(), savedSetting.get(), whitelistSetting.get(), activeSetting.get(), crackedSetting.get());;
-                } else if (versionSetting.get().number != -1 && vanilla.get()) {
-                    string = """
-                        {
-                          "search": {
-                            "version": {
-                              "name": "%s"
-                            },
-                            "flags": {
-                              "visited": %s,
-                              "griefed": %s,
-                              "modded": %s,
-                              "saved": %s,
-                              "whitelist": %s,
-                              "active": %s,
-                              "cracked": %s
-                            }
-                          }
-                        }""".formatted(versionSetting.get().getVersion(), visitedSetting.get(), griefedSetting.get(), moddedSetting.get(), savedSetting.get(), whitelistSetting.get(), activeSetting.get(), crackedSetting.get());;;
+                Gson gson = new GsonBuilder()
+                    .serializeNulls() // <-- This forces Gson to include null values
+                    .setPrettyPrinting()
+                    .create();
+
+                // Example 1: Version is a string
+                Object ver;
+                int number = versionSetting.get().number;
+                boolean isVanilla = vanilla.get();
+
+                if (isVanilla && number != -1) {
+                    ver = versionSetting.get().version; // Use the string version
+                } else if (number != -1) {
+                    ver = number; // Use protocol number if valid
+                } else {
+                    ver = null; // Set to null only if explicitly invalid
                 }
 
-                String response = Http.post(Main.mainEndpoint).bodyString(string).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendStringResponse().body();
-                return response;
+                System.out.println("Version assigned: " + ver);
+
+                ServerSearchBuilder.Version versionString = new ServerSearchBuilder.Version(ver);
+                ServerSearchBuilder.Flags flags = new ServerSearchBuilder.Flags(visitedSetting.get().bool, griefedSetting.get().bool, moddedSetting.get().bool, savedSetting.get().bool, whitelistSetting.get().bool, activeSetting.get().bool, crackedSetting.get().bool);
+                ServerSearchBuilder.Search searchString = new ServerSearchBuilder.Search(versionString, flags);
+
+                JsonObject jsonString = ServerSearchBuilder.createJson(searchString);
+                System.out.println("Version as String:");
+                System.out.println(gson.toJson(jsonString));
+
+
+                return Http.post(Main.mainEndpoint).bodyString(jsonString.toString()).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendStringResponse().body();
             }).thenAccept(response -> {
-                extractedServers = extractServerInfo(response);
-                if (extractedServers.isEmpty()){
-                    add(theme.label("No servers found."));
-                    return;
-                }
+                MinecraftClient.getInstance().execute(() -> {
+                    searching = false;
+                    reload();
 
-                WHorizontalList buttons = add(theme.horizontalList()).expandX().widget();
-                WTable table = add(theme.table()).widget();
-                buttons.add(theme.button("add all")).expandX().widget().action = () -> {
-                    extractedServers.forEach((server) -> {
-                        ServerInfo info = new ServerInfo("Mcsdc " + server.ip, server.ip, ServerInfo.ServerType.OTHER);
-                        multiplayerScreen.getServerList().add(info, false);
-                    });
-                    multiplayerScreen.getServerList().saveFile();
-                    multiplayerScreen.getServerList().loadFile();
-                };
+                    Main.LOG.info(response);
 
-                buttons.add(theme.button("randomize")).expandX().widget().action = () -> {
-                    Collections.shuffle(extractedServers);
+                    // some janky shit because it complains
+                    String res = response;
+                    if (response.endsWith(",]")){ // depending on the search, response can be slightly malformed.
+                        res = response.substring(0, response.length() - 2) + "]";
+                    }
+
+                    extractedServers = extractServerInfo(res);
+                    if (res == null || extractedServers.isEmpty()){
+                        add(theme.label("No servers found."));
+                        return;
+                    }
+
+                    WHorizontalList buttons = add(theme.horizontalList()).expandX().widget();
+                    WTable table = add(theme.table()).widget();
+                    buttons.add(theme.button("add all")).expandX().widget().action = () -> {
+                        extractedServers.forEach((server) -> {
+                            ServerInfo info = new ServerInfo("Mcsdc " + server.ip, server.ip, ServerInfo.ServerType.OTHER);
+                            multiplayerScreen.getServerList().add(info, false);
+                        });
+                        multiplayerScreen.getServerList().saveFile();
+                        multiplayerScreen.getServerList().loadFile();
+                    };
+
+                    buttons.add(theme.button("randomize")).expandX().widget().action = () -> {
+                        Collections.shuffle(extractedServers);
+
+                        generateWidgets(extractedServers, table);
+                    };
 
                     generateWidgets(extractedServers, table);
-                };
+                });
 
-                generateWidgets(extractedServers, table);
             });
-
         };
     }
 
@@ -256,6 +254,17 @@ public class FindNewServersScreen extends WindowScreen {
         });
 
         return serverStorageList;
+    }
+
+    public enum Flags{
+        YES(true),
+        NO(false),
+        ANY(null);
+
+        Boolean bool;
+        Flags(Boolean bool){
+            this.bool =bool;
+        }
     }
 
     public enum VersionEnum {
