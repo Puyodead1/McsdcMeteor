@@ -10,7 +10,7 @@
 
 ## Disclaimer:
 - to use this mod you will require an API key. however if you dont have that, nothing is stopping you from repurposing this mod for your own API
-- the purposes of this mod was not to allow griefing, i just had access to an API and made an addon for it. what people use this for is not my job to enfore nor can i.
+- the purposes of this mod was not to allow griefing, i just had access to an API and made an addon for it. what people use this for is not my job to enforce nor can i.
 
 ## Installation (Windows):
 
