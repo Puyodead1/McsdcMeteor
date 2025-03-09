@@ -8,6 +8,10 @@
   <img alt="GitHub all releases" src="https://img.shields.io/github/downloads/Nxyi/McsdcMeteor/total?color=black">
 </div>
 
+## Disclaimer:
+- to use this mod you will require an API key for the api. however if you dont have that, nothing is stopping you from repurposing this mod for your own API
+- the purposes of this mod was not to allow griefing, i just had access to an API and made an addon for it.
+
 ## Installation (Windows):
 
 - Download the .jar
