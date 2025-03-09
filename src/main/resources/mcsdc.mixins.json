@@ -5,6 +5,7 @@
   "client": [
     "AddressResolverMixin",
     "ConnectScreenMixin",
+    "GameMenuMixin",
     "MultiplayerScreenMixin"
   ],
   "injectors": {
