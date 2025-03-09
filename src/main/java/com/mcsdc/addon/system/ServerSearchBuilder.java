@@ -26,13 +26,7 @@ public class ServerSearchBuilder {
     }
 
     public static class Flags {
-        Boolean visited;
-        Boolean griefed;
-        Boolean modded;
-        Boolean saved;
-        Boolean whitelist;
-        Boolean active;
-        Boolean cracked;
+        Boolean visited, griefed, modded, saved, whitelist, active, cracked;
 
         public Flags(Boolean visited, Boolean griefed, Boolean modded, Boolean saved,
                      Boolean whitelist, Boolean active, Boolean cracked) {
@@ -69,8 +63,7 @@ public class ServerSearchBuilder {
     }
 
     public static JsonObject createJson(Search search) {
-        JsonObject rootJson = new JsonObject();
-        JsonObject searchJson = new JsonObject();
+        JsonObject rootJson = new JsonObject(), searchJson = new JsonObject();
 
         // Handle version dynamically (null, int -> protocol, or string -> name)
         if (search.version != null) {
