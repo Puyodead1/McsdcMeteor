@@ -72,7 +72,7 @@ public class FindPlayerScreen extends WindowScreen {
 
                 add(theme.button("add all")).expandX().widget().action = () -> {
                     extractedServers.forEach((server) -> {
-                        ServerInfo info = new ServerInfo("Mcsdc " + server.ip, server.version, ServerInfo.ServerType.OTHER);
+                        ServerInfo info = new ServerInfo("Mcsdc " + server.ip, server.ip, ServerInfo.ServerType.OTHER);
                         multiplayerScreen.getServerList().add(info, false);
                     });
                     multiplayerScreen.getServerList().saveFile();
