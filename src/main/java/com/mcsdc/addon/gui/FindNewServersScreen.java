@@ -1,6 +1,8 @@
 package com.mcsdc.addon.gui;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mcsdc.addon.Main;
 import com.mcsdc.addon.system.McsdcSystem;
 import com.mcsdc.addon.system.ServerSearchBuilder;
@@ -14,6 +16,7 @@ import meteordevelopment.meteorclient.gui.widgets.pressable.WButton;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.utils.network.Http;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
@@ -26,7 +29,9 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class FindNewServersScreen extends WindowScreen {
-    private final MultiplayerScreen multiplayerScreen;
+    private static FindNewServersScreen instance = null;
+    private MultiplayerScreen multiplayerScreen;
+    private Screen parent;
 
     private final Settings settings = new Settings();
     private final SettingGroup sg = settings.getDefaultGroup();
@@ -97,9 +102,25 @@ public class FindNewServersScreen extends WindowScreen {
 
     WContainer settingsContainer;
 
-    public FindNewServersScreen(MultiplayerScreen multiplayerScreen) {
-        super(GuiThemes.get(), "Find Servers");
+    public static FindNewServersScreen instance(MultiplayerScreen multiplayerScreen, Screen parent) {
+        if (instance == null) {
+            instance = new FindNewServersScreen();
+        }
+        instance.setMultiplayerScreen(multiplayerScreen);
+        instance.setParent(parent);
+        return instance;
+    }
+
+    public void setMultiplayerScreen(MultiplayerScreen multiplayerScreen) {
         this.multiplayerScreen = multiplayerScreen;
+    }
+
+    public void setParent(Screen parent) {
+        this.parent = parent;
+    }
+
+    public FindNewServersScreen() {
+        super(GuiThemes.get(), "Find Servers");
     }
 
     List<ServerStorage> extractedServers;
@@ -116,18 +137,13 @@ public class FindNewServersScreen extends WindowScreen {
 
             if (visitedSetting.get().bool == null && griefedSetting.get().bool  == null && moddedSetting.get().bool  == null && savedSetting.get().bool  == null && whitelistSetting.get().bool  == null && activeSetting.get().bool == null && crackedSetting.get().bool  == null &&
                 versionSetting.get().number == -1){
-                add(theme.label("Everything searches are not allowed."));
+                add(theme.label("Everything searches are not allowed.")).expandX().widget();
                 return;
             }
 
             CompletableFuture.supplyAsync(() -> {
                 searching = true;
-                add(theme.label("Searching..."));
-
-                Gson gson = new GsonBuilder()
-                    .serializeNulls() // <-- This forces Gson to include null values
-                    .setPrettyPrinting()
-                    .create();
+                add(theme.label("Searching...")).expandX().widget();
 
                 // Example 1: Version is a string
                 Object ver;
@@ -142,16 +158,11 @@ public class FindNewServersScreen extends WindowScreen {
                     ver = null; // Set to null only if explicitly invalid
                 }
 
-                System.out.println("Version assigned: " + ver);
-
                 ServerSearchBuilder.Version versionString = new ServerSearchBuilder.Version(ver);
                 ServerSearchBuilder.Flags flags = new ServerSearchBuilder.Flags(visitedSetting.get().bool, griefedSetting.get().bool, moddedSetting.get().bool, savedSetting.get().bool, whitelistSetting.get().bool, activeSetting.get().bool, crackedSetting.get().bool);
                 ServerSearchBuilder.Search searchString = new ServerSearchBuilder.Search(versionString, flags);
 
                 JsonObject jsonString = ServerSearchBuilder.createJson(searchString);
-                System.out.println("Version as String:");
-                System.out.println(gson.toJson(jsonString));
-
 
                 return Http.post(Main.mainEndpoint).bodyString(jsonString.toString()).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendStringResponse().body();
             }).thenAccept(response -> {
@@ -167,7 +178,7 @@ public class FindNewServersScreen extends WindowScreen {
 
                     extractedServers = extractServerInfo(res);
                     if (res == null || extractedServers.isEmpty()){
-                        add(theme.label("No servers found."));
+                        add(theme.label("No servers found.")).expandX().widget();
                         return;
                     }
 
@@ -324,5 +335,10 @@ public class FindNewServersScreen extends WindowScreen {
         public int getNumber() {
             return number;
         }
+    }
+
+    @Override
+    public void close() {
+        this.client.setScreen(parent);
     }
 }

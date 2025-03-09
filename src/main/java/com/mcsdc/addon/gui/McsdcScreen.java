@@ -49,11 +49,11 @@ public class McsdcScreen extends WindowScreen {
         WButton removeServersButton = widgetList.add(this.theme.button("Remove Servers")).expandX().widget();
 
         newServersButton.action = () -> {
-            this.client.setScreen(new FindNewServersScreen(this.multiplayerScreen));
+            this.client.setScreen(FindNewServersScreen.instance(this.multiplayerScreen, this));
         };
 
         findPlayersButton.action = () -> {
-            this.client.setScreen(new FindPlayerScreen(this.multiplayerScreen));
+            this.client.setScreen(FindPlayerScreen.instance(this.multiplayerScreen, this));
         };
 
         recentServersButton.action = () -> {

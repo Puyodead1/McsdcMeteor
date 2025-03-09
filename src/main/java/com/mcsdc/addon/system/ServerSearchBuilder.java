@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 
 public class ServerSearchBuilder {
     public static class Version {
-        Object value; // Can be String, Integer, or null
+        Object value;
 
         public Version(Object value) {
             this.value = value;
@@ -13,7 +13,7 @@ public class ServerSearchBuilder {
 
         public JsonElement toJson() {
             if (value == null) {
-                return null; // Return null if version is null
+                return null;
             }
             JsonObject versionObject = new JsonObject();
             if (value instanceof Integer) {

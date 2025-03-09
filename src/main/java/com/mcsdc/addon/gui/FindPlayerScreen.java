@@ -1,8 +1,10 @@
 package com.mcsdc.addon.gui;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mcsdc.addon.Main;
+import com.mcsdc.addon.system.FindPlayerSearchBuilder;
 import com.mcsdc.addon.system.McsdcSystem;
 import com.mcsdc.addon.system.ServerStorage;
 import meteordevelopment.meteorclient.gui.GuiThemes;
@@ -16,6 +18,7 @@ import meteordevelopment.meteorclient.settings.Settings;
 import meteordevelopment.meteorclient.settings.StringSetting;
 import meteordevelopment.meteorclient.utils.network.Http;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
@@ -27,7 +30,9 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class FindPlayerScreen extends WindowScreen {
-    private final MultiplayerScreen multiplayerScreen;
+    private static FindPlayerScreen instance = null;
+    private MultiplayerScreen multiplayerScreen;
+    private Screen parent;
 
     private final Settings settings = new Settings();
     private final SettingGroup sg = settings.getDefaultGroup();
@@ -35,13 +40,29 @@ public class FindPlayerScreen extends WindowScreen {
     private final Setting<String> playerSetting = sg.add(new StringSetting.Builder()
         .name("name/uuid")
         .description("")
-        .defaultValue("Notch")
+        .defaultValue("popbob")
         .build()
     );
 
-    public FindPlayerScreen(MultiplayerScreen multiplayerScreen) {
+    public static FindPlayerScreen instance(MultiplayerScreen multiplayerScreen, Screen parent) {
+        if (instance == null) {
+            instance = new FindPlayerScreen();
+        }
+        instance.setMultiplayerScreen(multiplayerScreen);
+        instance.setParent(parent);
+        return instance;
+    }
+
+    public void setParent(Screen parent) {
+        this.parent = parent;
+    }
+
+    public MultiplayerScreen setMultiplayerScreen(MultiplayerScreen multiplayerScreen) {
+        return this.multiplayerScreen = multiplayerScreen;
+    }
+
+    public FindPlayerScreen() {
         super(GuiThemes.get(), "Find Player");
-        this.multiplayerScreen = multiplayerScreen;
     }
     WContainer settingsContainer;
     @Override
@@ -55,17 +76,16 @@ public class FindPlayerScreen extends WindowScreen {
 
         add(theme.button("search")).expandX().widget().action = () -> {
             reload();
+            if (playerSetting.get().isEmpty()){
+                add(theme.label("Enter a name/uuid")).expandX();
+            }
 
             CompletableFuture.supplyAsync(() -> {
-                String string = "{\"search\":{\"player\":\"%s\"}}"
-                    .formatted(this.playerSetting.get());
-
-                String response = Http.post(Main.mainEndpoint).bodyJson(string).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendStringResponse().body();
-                return response;
-
+                JsonObject toSearch = FindPlayerSearchBuilder.create(playerSetting.get());
+                return Http.post(Main.mainEndpoint).bodyJson(toSearch).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendStringResponse().body();
             }).thenAccept(response -> {
                 List<ServerStorage> extractedServers = extractServerInfo(response);
-                if (extractedServers.isEmpty()){
+                if (extractedServers.isEmpty() || response == null){
                     add(theme.label("No servers found."));
                     return;
                 }
@@ -137,5 +157,10 @@ public class FindPlayerScreen extends WindowScreen {
         });
 
         return serverStorageList;
+    }
+
+    @Override
+    public void close() {
+        this.client.setScreen(parent);
     }
 }
