@@ -6,7 +6,8 @@
     "AddressResolverMixin",
     "ConnectScreenMixin",
     "GameMenuMixin",
-    "MultiplayerScreenMixin"
+    "MultiplayerScreenMixin",
+    "ServerEntryMixin"
   ],
   "injectors": {
     "defaultRequire": 1

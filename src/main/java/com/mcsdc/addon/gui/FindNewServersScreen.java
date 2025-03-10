@@ -5,8 +5,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mcsdc.addon.Main;
 import com.mcsdc.addon.system.McsdcSystem;
+import com.mcsdc.addon.system.ServerEntry;
 import com.mcsdc.addon.system.ServerSearchBuilder;
-import com.mcsdc.addon.system.ServerStorage;
 import meteordevelopment.meteorclient.gui.GuiThemes;
 import meteordevelopment.meteorclient.gui.WindowScreen;
 import meteordevelopment.meteorclient.gui.widgets.containers.WContainer;
@@ -122,7 +122,7 @@ public class FindNewServersScreen extends WindowScreen {
         super(GuiThemes.get(), "Find Servers");
     }
 
-    List<ServerStorage> extractedServers;
+    List<ServerEntry> extractedServers;
     @Override
     public void initWidgets() {
         WContainer settingsContainer = add(theme.verticalList()).widget();
@@ -205,7 +205,7 @@ public class FindNewServersScreen extends WindowScreen {
         };
     }
 
-    public void generateWidgets(List<ServerStorage> extractedServers, final WTable table){
+    public void generateWidgets(List<ServerEntry> extractedServers, final WTable table){
         Main.mc.execute(() -> {
             table.clear();
 
@@ -250,14 +250,14 @@ public class FindNewServersScreen extends WindowScreen {
         });
     }
 
-    public static List<ServerStorage> extractServerInfo(String jsonResponse) {
-        List<ServerStorage> serverStorageList = new ArrayList<>();
+    public static List<ServerEntry> extractServerInfo(String jsonResponse) {
+        List<ServerEntry> serverStorageList = new ArrayList<>();
         JsonArray jsonObject = JsonParser.parseString(jsonResponse).getAsJsonArray();
 
         jsonObject.forEach(node -> {
             String address = node.getAsJsonObject().get("address").getAsString();
             String version = node.getAsJsonObject().get("version").getAsString();
-            serverStorageList.add(new ServerStorage(address, version));
+            serverStorageList.add(new ServerEntry(address, version));
         });
 
         return serverStorageList;

@@ -6,7 +6,7 @@ import com.google.gson.JsonParser;
 import com.mcsdc.addon.Main;
 import com.mcsdc.addon.system.FindPlayerSearchBuilder;
 import com.mcsdc.addon.system.McsdcSystem;
-import com.mcsdc.addon.system.ServerStorage;
+import com.mcsdc.addon.system.ServerEntry;
 import meteordevelopment.meteorclient.gui.GuiThemes;
 import meteordevelopment.meteorclient.gui.WindowScreen;
 import meteordevelopment.meteorclient.gui.widgets.containers.WContainer;
@@ -83,7 +83,7 @@ public class FindPlayerScreen extends WindowScreen {
                 JsonObject toSearch = FindPlayerSearchBuilder.create(playerSetting.get());
                 return Http.post(Main.mainEndpoint).bodyJson(toSearch).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendStringResponse().body();
             }).thenAccept(response -> {
-                List<ServerStorage> extractedServers = extractServerInfo(response);
+                List<ServerEntry> extractedServers = extractServerInfo(response);
                 if (extractedServers.isEmpty() || response == null){
                     add(theme.label("No servers found."));
                     return;
@@ -145,14 +145,14 @@ public class FindPlayerScreen extends WindowScreen {
         };
     }
 
-    public static List<ServerStorage> extractServerInfo(String jsonResponse) {
-        List<ServerStorage> serverStorageList = new ArrayList<>();
+    public static List<ServerEntry> extractServerInfo(String jsonResponse) {
+        List<ServerEntry> serverStorageList = new ArrayList<>();
         JsonArray array = JsonParser.parseString(jsonResponse).getAsJsonArray();
 
         array.forEach(node -> {
             String address = node.getAsJsonObject().get("address").getAsString();
             String version = node.getAsJsonObject().get("version").getAsString();
-            serverStorageList.add(new ServerStorage(address, version));
+            serverStorageList.add(new ServerEntry(address, version));
         });
 
         return serverStorageList;
