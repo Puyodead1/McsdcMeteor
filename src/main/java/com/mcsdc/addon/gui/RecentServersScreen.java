@@ -1,12 +1,12 @@
 package com.mcsdc.addon.gui;
 
+import com.mcsdc.addon.Main;
 import com.mcsdc.addon.system.McsdcSystem;
 import com.mcsdc.addon.system.ServerEntry;
 import meteordevelopment.meteorclient.gui.GuiThemes;
 import meteordevelopment.meteorclient.gui.WindowScreen;
 import meteordevelopment.meteorclient.gui.widgets.containers.WTable;
 import meteordevelopment.meteorclient.gui.widgets.pressable.WButton;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
@@ -68,14 +68,14 @@ public class RecentServersScreen extends WindowScreen {
 
             WButton joinServerButton = theme.button("Join Server");
             joinServerButton.action = () -> {
-                ConnectScreen.connect(new TitleScreen(), MinecraftClient.getInstance(),
-                    new ServerAddress(serverIP.split(":")[0], Integer.parseInt(serverIP.split(":")[1])),
-                    new ServerInfo("a", serverIP, ServerInfo.ServerType.OTHER), false, null);
+                ConnectScreen.connect(new MultiplayerScreen(new TitleScreen()), Main.mc,
+                    ServerAddress.parse(serverIP), new ServerInfo("", serverIP, ServerInfo.ServerType.OTHER), false, null);
+
 
             };
             WButton serverInfoButton = theme.button("Server Info");
             serverInfoButton.action = () -> {
-                MinecraftClient.getInstance().setScreen(new ServerInfoScreen(serverIP));
+                Main.mc.setScreen(new ServerInfoScreen(serverIP));
             };
 
             WButton removeServerButton = theme.button("Remove Server");

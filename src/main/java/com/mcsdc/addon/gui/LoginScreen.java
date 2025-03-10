@@ -12,7 +12,6 @@ import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.settings.Settings;
 import meteordevelopment.meteorclient.settings.StringSetting;
 import meteordevelopment.meteorclient.utils.network.Http;
-import net.minecraft.client.MinecraftClient;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -77,7 +76,7 @@ public class LoginScreen extends WindowScreen {
 
                 return map;
             }).thenAccept(response -> {
-                MinecraftClient.getInstance().execute(() -> {
+                Main.mc.execute(() -> {
                     if (response == null) return;
 
                     String extractedName = response.keySet().iterator().next();

@@ -5,8 +5,8 @@
   "client": [
     "AddressResolverMixin",
     "ConnectScreenMixin",
-    "MultiplayerScreenMixin",
-    "ServerEntryMixin"
+    "GameMenuMixin",
+    "MultiplayerScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
