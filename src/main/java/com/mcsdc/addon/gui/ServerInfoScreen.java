@@ -13,6 +13,8 @@ import meteordevelopment.meteorclient.systems.accounts.types.CrackedAccount;
 import meteordevelopment.meteorclient.utils.network.Http;
 
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -129,16 +131,32 @@ public class ServerInfoScreen extends WindowScreen {
                 accounts.row();
 
                 JsonArray array = JsonParser.parseString(response).getAsJsonObject().getAsJsonArray("historical");
-                if (array.isEmpty()) accounts.add(theme.label("No historical players found."));
+                List<PlayerInfo> players = new ArrayList<>();
+                for (JsonElement jsonElement : array){
+                    String name;
+                    try { // some weird response can send the name as a JsonArray. so if thats the case, im just gonna skip it.
+                        name = jsonElement.getAsJsonObject().get("name").getAsString();
+                    } catch (Exception exception){
+                        continue;
+                    }
+
+                    String uuid = jsonElement.getAsJsonObject().get("uuid").getAsString();
+
+                    if (uuid.endsWith("0000-000000000000")) { // depending on stuff, uuid can start with "????" so, checking for the end is good enough. as no real uuid should end with that
+                        continue;
+                    }
+
+                    players.add(new PlayerInfo(name, uuid));
+                }
+
+                if (players.isEmpty()) accounts.add(theme.label("No historical players found."));
                 else {
-                    for (JsonElement jsonElement : array) {
-                        String name = jsonElement.getAsJsonObject().get("name").getAsString();
-                        Main.LOG.info(name);
-                        accounts.add(theme.label(name)).expandX().widget();
+                    for (PlayerInfo info : players) {
+                        accounts.add(theme.label(info.name)).expandX().widget();
                         accounts.add(theme.button("Login")).expandX().widget().action = () -> {
-                            new CrackedAccount(name).login();
+                            new CrackedAccount(info.name).login();
                         };
-                        if (array.asList().getLast() != jsonElement) accounts.row();
+                        if (players.getLast() != info) accounts.row();
                     }
                 }
             });
@@ -168,4 +186,6 @@ public class ServerInfoScreen extends WindowScreen {
         long hours = TimeUnit.MILLISECONDS.toHours(diffMillis);
         return hours + " hours ago";
     }
+
+    public record PlayerInfo(String name, String uuid){}
 }
