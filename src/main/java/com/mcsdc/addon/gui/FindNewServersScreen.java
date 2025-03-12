@@ -6,7 +6,7 @@ import com.google.gson.JsonParser;
 import com.mcsdc.addon.Main;
 import com.mcsdc.addon.system.McsdcSystem;
 import com.mcsdc.addon.system.ServerSearchBuilder;
-import com.mcsdc.addon.system.ServerStorage;
+import com.mcsdc.addon.system.ServerEntry;
 import meteordevelopment.meteorclient.gui.GuiThemes;
 import meteordevelopment.meteorclient.gui.WindowScreen;
 import meteordevelopment.meteorclient.gui.widgets.containers.WContainer;
@@ -35,7 +35,7 @@ public class FindNewServersScreen extends WindowScreen {
     private final Settings settings = new Settings();
     private final SettingGroup sg = settings.getDefaultGroup();
     private boolean searching = false;
-    List<ServerStorage> extractedServers;
+    List<ServerEntry> extractedServers;
 
     private final Setting<Flags> visitedSetting = sg.add(new EnumSetting.Builder<Flags>()
         .name("visited")
@@ -242,7 +242,7 @@ public class FindNewServersScreen extends WindowScreen {
         generateWidgets(extractedServers);
     }
 
-    public void generateWidgets(List<ServerStorage> extractedServers){
+    public void generateWidgets(List<ServerEntry> extractedServers){
         Main.mc.execute(() -> {
             WTable table = add(theme.table()).widget();
             table.clear();
@@ -288,14 +288,14 @@ public class FindNewServersScreen extends WindowScreen {
         });
     }
 
-    public static List<ServerStorage> extractServerInfo(String jsonResponse) {
-        List<ServerStorage> serverStorageList = new ArrayList<>();
+    public static List<ServerEntry> extractServerInfo(String jsonResponse) {
+        List<ServerEntry> serverStorageList = new ArrayList<>();
         JsonArray jsonObject = JsonParser.parseString(jsonResponse).getAsJsonArray();
 
         jsonObject.forEach(node -> {
             String address = node.getAsJsonObject().get("address").getAsString();
             String version = node.getAsJsonObject().get("version").getAsString();
-            serverStorageList.add(new ServerStorage(address, version));
+            serverStorageList.add(new ServerEntry(address, version));
         });
 
         return serverStorageList;
