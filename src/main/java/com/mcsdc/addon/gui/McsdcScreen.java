@@ -9,6 +9,8 @@ import meteordevelopment.meteorclient.gui.widgets.pressable.WButton;
 import meteordevelopment.meteorclient.utils.network.Http;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 
+import java.util.concurrent.CompletableFuture;
+
 
 public class McsdcScreen extends WindowScreen {
     private final MultiplayerScreen multiplayerScreen;
@@ -27,9 +29,14 @@ public class McsdcScreen extends WindowScreen {
             return;
         }
 
+        WTable noticeTable = add(theme.table()).expandX().widget();
+        CompletableFuture.supplyAsync(() -> {
+            return Http.post("https://interact.mcsdc.online/notice.txt").sendString();
+        }).thenAccept(notice -> {
+            noticeTable.add(theme.label(notice == null ? "No notice" : notice));
+        }); // fix freezing that can happen when opening screen, no longer waits for notice before adding other components
+
         WTable accountList = add(theme.table()).expandX().widget();
-        String notice = Http.post("https://interact.mcsdc.online/notice.txt").sendString();
-        accountList.add(theme.label(notice == null ? "No notice" : notice));
         accountList.row();
         accountList.add(theme.label("User: " + McsdcSystem.get().getUsername())).expandX();
         accountList.add(theme.label("Perms: " + McsdcSystem.get().getLevel())).expandX();
