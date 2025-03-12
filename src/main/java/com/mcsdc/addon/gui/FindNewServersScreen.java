@@ -35,6 +35,7 @@ public class FindNewServersScreen extends WindowScreen {
     private final Settings settings = new Settings();
     private final SettingGroup sg = settings.getDefaultGroup();
     private boolean searching = false;
+    List<ServerStorage> extractedServers;
 
     private final Setting<Flags> visitedSetting = sg.add(new EnumSetting.Builder<Flags>()
         .name("visited")
@@ -85,17 +86,43 @@ public class FindNewServersScreen extends WindowScreen {
         .build()
     );
 
+    private final Setting<Boolean> advancedVersionSetting = sg.add(new BoolSetting.Builder()
+        .name("advanced version")
+        .description("")
+        .defaultValue(false)
+        .onChanged((v) -> {
+            reload();
+            if (extractedServers != null && !extractedServers.isEmpty()){
+                bruh();
+                generateWidgets(extractedServers);
+            }
+
+
+        })
+        .build()
+    );
+
     private final Setting<Boolean> vanilla = sg.add(new BoolSetting.Builder()
         .name("vanilla")
         .description("")
         .defaultValue(false)
+        .visible(() -> !advancedVersionSetting.get())
         .build()
     );
 
-    private final Setting<VersionEnum> versionSetting = sg.add(new EnumSetting.Builder<VersionEnum>()
+    private final Setting<VersionEnum> versionEnumSetting = sg.add(new EnumSetting.Builder<VersionEnum>()
         .name("version")
         .description("")
         .defaultValue(VersionEnum.ANY)
+        .visible(() -> !advancedVersionSetting.get())
+        .build()
+    );
+
+    private final Setting<String> versionStringSetting = sg.add(new StringSetting.Builder()
+        .name("version")
+        .description("")
+        .defaultValue("Paper 1.21.4")
+        .visible(advancedVersionSetting::get)
         .build()
     );
 
@@ -122,7 +149,7 @@ public class FindNewServersScreen extends WindowScreen {
         super(GuiThemes.get(), "Find Servers");
     }
 
-    List<ServerStorage> extractedServers;
+
     @Override
     public void initWidgets() {
         WContainer settingsContainer = add(theme.verticalList()).widget();
@@ -134,8 +161,7 @@ public class FindNewServersScreen extends WindowScreen {
             if (searching) return;
             reload();
 
-            if (visitedSetting.get().bool == null && griefedSetting.get().bool  == null && moddedSetting.get().bool  == null && savedSetting.get().bool  == null && whitelistSetting.get().bool  == null && activeSetting.get().bool == null && crackedSetting.get().bool  == null &&
-                versionSetting.get().number == -1){
+            if (visitedSetting.get().bool == null && griefedSetting.get().bool  == null && moddedSetting.get().bool  == null && savedSetting.get().bool  == null && whitelistSetting.get().bool  == null && activeSetting.get().bool == null && crackedSetting.get().bool  == null){
                 add(theme.label("Everything searches are not allowed.")).expandX().widget();
                 return;
             }
@@ -144,17 +170,24 @@ public class FindNewServersScreen extends WindowScreen {
                 searching = true;
                 add(theme.label("Searching...")).expandX().widget();
 
-                // Example 1: Version is a string
                 Object ver;
-                int number = versionSetting.get().number;
-                boolean isVanilla = vanilla.get();
+                if (!advancedVersionSetting.get()){
 
-                if (isVanilla && number != -1) {
-                    ver = versionSetting.get().version; // Use the string version
-                } else if (number != -1) {
-                    ver = number; // Use protocol number if valid
+                    int number = versionEnumSetting.get().number;
+                    boolean isVanilla = vanilla.get();
+
+                    if (isVanilla && number != -1) {
+                        ver = versionEnumSetting.get().version; // Use the string version
+                    } else if (number != -1) {
+                        ver = number; // Use protocol number if valid
+                    } else {
+                        ver = null; // Set to null only if explicitly invalid
+                    }
                 } else {
-                    ver = null; // Set to null only if explicitly invalid
+                    if (versionStringSetting.get().isEmpty()){
+                        return null;
+                    }
+                    ver = versionStringSetting.get();
                 }
 
                 ServerSearchBuilder.Version versionString = new ServerSearchBuilder.Version(ver);
@@ -163,7 +196,7 @@ public class FindNewServersScreen extends WindowScreen {
 
                 JsonObject jsonString = ServerSearchBuilder.createJson(searchString);
 
-                return Http.post(Main.mainEndpoint).bodyString(jsonString.toString()).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendStringResponse().body();
+                return Http.post(Main.mainEndpoint).bodyString(jsonString.toString()).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendString();
             }).thenAccept(response -> {
                 Main.mc.execute(() -> {
                     searching = false;
@@ -176,37 +209,42 @@ public class FindNewServersScreen extends WindowScreen {
                     }
 
                     extractedServers = extractServerInfo(res);
-                    if (res == null || extractedServers.isEmpty()){
+                    if (response == null || extractedServers.isEmpty()){
                         add(theme.label("No servers found.")).expandX().widget();
                         return;
                     }
+                    bruh();
 
-                    WHorizontalList buttons = add(theme.horizontalList()).expandX().widget();
-                    WTable table = add(theme.table()).widget();
-                    buttons.add(theme.button("add all")).expandX().widget().action = () -> {
-                        extractedServers.forEach((server) -> {
-                            ServerInfo info = new ServerInfo("Mcsdc " + server.ip, server.ip, ServerInfo.ServerType.OTHER);
-                            multiplayerScreen.getServerList().add(info, false);
-                        });
-                        multiplayerScreen.getServerList().saveFile();
-                        multiplayerScreen.getServerList().loadFile();
-                    };
-
-                    buttons.add(theme.button("randomize")).expandX().widget().action = () -> {
-                        Collections.shuffle(extractedServers);
-
-                        generateWidgets(extractedServers, table);
-                    };
-
-                    generateWidgets(extractedServers, table);
                 });
 
             });
         };
     }
 
-    public void generateWidgets(List<ServerStorage> extractedServers, final WTable table){
+    public void bruh(){
+        WHorizontalList buttons = add(theme.horizontalList()).expandX().widget();
+
+        buttons.add(theme.button("add all")).expandX().widget().action = () -> {
+            extractedServers.forEach((server) -> {
+                ServerInfo info = new ServerInfo("Mcsdc " + server.ip, server.ip, ServerInfo.ServerType.OTHER);
+                multiplayerScreen.getServerList().add(info, false);
+            });
+            multiplayerScreen.getServerList().saveFile();
+            multiplayerScreen.getServerList().loadFile();
+        };
+
+        buttons.add(theme.button("randomize")).expandX().widget().action = () -> {
+            Collections.shuffle(extractedServers);
+
+            generateWidgets(extractedServers);
+        };
+
+        generateWidgets(extractedServers);
+    }
+
+    public void generateWidgets(List<ServerStorage> extractedServers){
         Main.mc.execute(() -> {
+            WTable table = add(theme.table()).widget();
             table.clear();
 
             table.add(theme.label("Server IP"));
