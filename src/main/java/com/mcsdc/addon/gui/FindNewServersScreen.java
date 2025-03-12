@@ -94,7 +94,6 @@ public class FindNewServersScreen extends WindowScreen {
             reload();
             if (extractedServers != null && !extractedServers.isEmpty()){
                 bruh();
-                generateWidgets(extractedServers);
             }
 
 
@@ -148,7 +147,6 @@ public class FindNewServersScreen extends WindowScreen {
     public FindNewServersScreen() {
         super(GuiThemes.get(), "Find Servers");
     }
-
 
     @Override
     public void initWidgets() {
@@ -234,9 +232,10 @@ public class FindNewServersScreen extends WindowScreen {
         };
 
         buttons.add(theme.button("randomize")).expandX().widget().action = () -> {
-            Collections.shuffle(extractedServers);
+            reload();
 
-            generateWidgets(extractedServers);
+            Collections.shuffle(extractedServers);
+            bruh();
         };
 
         generateWidgets(extractedServers);
