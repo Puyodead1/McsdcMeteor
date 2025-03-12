@@ -55,7 +55,7 @@ public class McsdcSystem extends System<McsdcSystem> {
 
     public ServerStorage getRecentServerWithIp(String ip){
         for (ServerStorage server : recentServers){
-            if (Objects.equals(server.ip, ip)){
+            if (Objects.equals(server.ip(), ip)){
                 return server;
             }
         }
@@ -73,8 +73,8 @@ public class McsdcSystem extends System<McsdcSystem> {
 
         recentServers.forEach((server) -> {
             NbtCompound compound2 = new NbtCompound();
-            compound2.putString("ip", server.ip);
-            compound2.putString("version", server.version);
+            compound2.putString("ip", server.ip());
+            compound2.putString("version", server.version());
             list.add(compound2);
         });
 

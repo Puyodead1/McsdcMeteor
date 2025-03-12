@@ -168,9 +168,4 @@ public class ServerInfoScreen extends WindowScreen {
         long hours = TimeUnit.MILLISECONDS.toHours(diffMillis);
         return hours + " hours ago";
     }
-
-
-
-
-
 }

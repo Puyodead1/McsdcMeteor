@@ -50,8 +50,8 @@ public class RecentServersScreen extends WindowScreen {
         Collections.reverse(reversed);
 
         reversed.forEach((serverStorage) -> {
-            String serverIP = serverStorage.ip;
-            String serverVersion = serverStorage.version;
+            String serverIP = serverStorage.ip();
+            String serverVersion = serverStorage.version();
 
             table.row();
             table.add(theme.label(serverIP)).expandX();
