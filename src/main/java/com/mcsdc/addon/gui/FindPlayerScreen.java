@@ -152,7 +152,9 @@ public class FindPlayerScreen extends WindowScreen {
         array.forEach(node -> {
             String address = node.getAsJsonObject().get("address").getAsString();
             String version = node.getAsJsonObject().get("version").getAsString();
-            serverStorageList.add(new ServerStorage(address, version));
+            long lastscanned = node.getAsJsonObject().get("last_scanned").getAsLong();
+            long lastseen = node.getAsJsonObject().get("last_seen_online").getAsLong();
+            serverStorageList.add(new ServerStorage(address, version, lastscanned, lastseen));
         });
 
         return serverStorageList;
