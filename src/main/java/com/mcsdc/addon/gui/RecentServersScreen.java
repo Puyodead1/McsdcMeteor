@@ -1,6 +1,7 @@
 package com.mcsdc.addon.gui;
 
 import com.mcsdc.addon.Main;
+import com.mcsdc.addon.MultiplayerScreenUtils;
 import com.mcsdc.addon.system.McsdcSystem;
 import com.mcsdc.addon.system.ServerStorage;
 import meteordevelopment.meteorclient.gui.GuiThemes;
@@ -61,8 +62,8 @@ public class RecentServersScreen extends WindowScreen {
             addServerButton.action = () -> {
                 ServerInfo info = new ServerInfo("Mcsdc " + serverIP, serverIP, ServerInfo.ServerType.OTHER);
                 multiplayerScreen.getServerList().add(info, false);
-                multiplayerScreen.getServerList().saveFile();
-                multiplayerScreen.getServerList().loadFile();
+                MultiplayerScreenUtils.save(this.multiplayerScreen);
+                MultiplayerScreenUtils.reload(this.multiplayerScreen);
                 addServerButton.visible = false;
             };
 
