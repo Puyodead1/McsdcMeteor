@@ -14,7 +14,6 @@ import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 
-import java.util.Collections;
 import java.util.List;
 
 public class RecentServersScreen extends WindowScreen {
@@ -47,8 +46,7 @@ public class RecentServersScreen extends WindowScreen {
         table.add(theme.horizontalSeparator()).expandX();
 
         // Reverse list so most recent shows at the top
-        List<ServerStorage> reversed = McsdcSystem.get().getRecentServers();
-        Collections.reverse(reversed);
+        List<ServerStorage> reversed = McsdcSystem.get().getRecentServers().reversed();
 
         reversed.forEach((serverStorage) -> {
             String serverIP = serverStorage.ip();

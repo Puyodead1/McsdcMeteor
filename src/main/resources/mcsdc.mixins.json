@@ -2,7 +2,13 @@
   "required": true,
   "package": "com.mcsdc.addon.mixin",
   "compatibilityLevel": "JAVA_21",
-  "client": ["AddressResolverMixin","ConnectScreenMixin","GameMenuMixin","MultiplayerScreenAccessor","MultiplayerScreenMixin"],
+  "client": [
+    "AddressResolverMixin",
+    "ClientPlayNetworkHandlerMixin",
+    "GameMenuMixin",
+    "MultiplayerScreenAccessor",
+    "MultiplayerScreenMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   },
