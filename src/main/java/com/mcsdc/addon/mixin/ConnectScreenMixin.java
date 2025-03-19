@@ -26,7 +26,7 @@ public class ConnectScreenMixin {
             return;
         }
 
-        system.getRecentServers().add(new ServerStorage(info.address, info.version.getString()));
+        system.getRecentServers().add(new ServerStorage(info.address, info.version.getString(), null, null));
     }
 
 }

@@ -96,7 +96,7 @@ public class McsdcSystem extends System<McsdcSystem> {
             String ip = compound.getString("ip");
             String ver = compound.getString("version");
 
-            recentServers.add(new ServerStorage(ip, ver));
+            recentServers.add(new ServerStorage(ip, ver, null, null));
         }
 
         // reverse servers to ensure they are in the correct order. or they would flip each time.

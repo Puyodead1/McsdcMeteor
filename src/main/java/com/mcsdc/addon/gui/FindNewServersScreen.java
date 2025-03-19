@@ -37,6 +37,13 @@ public class FindNewServersScreen extends WindowScreen {
     private boolean searching = false;
     List<ServerStorage> extractedServers;
 
+    private final Setting<Boolean> hideOfflineSetting = sg.add(new BoolSetting.Builder()
+        .name("hide offline")
+        .description("")
+        .defaultValue(true)
+        .build()
+    );
+
     private final Setting<Flags> visitedSetting = sg.add(new EnumSetting.Builder<Flags>()
         .name("visited")
         .description("")
@@ -207,6 +214,10 @@ public class FindNewServersScreen extends WindowScreen {
                     }
 
                     extractedServers = extractServerInfo(res);
+                    if (hideOfflineSetting.get()){
+                        extractedServers.removeIf(server -> server.lastScanned() - server.lastSeen() > 40 * 60 * 1000);
+                    }
+
                     if (response == null || extractedServers.isEmpty()){
                         add(theme.label("No servers found.")).expandX().widget();
                         return;
@@ -294,7 +305,9 @@ public class FindNewServersScreen extends WindowScreen {
         jsonObject.forEach(node -> {
             String address = node.getAsJsonObject().get("address").getAsString();
             String version = node.getAsJsonObject().get("version").getAsString();
-            serverStorageList.add(new ServerStorage(address, version));
+            long lastscanned = node.getAsJsonObject().get("last_scanned").getAsLong();
+            long lastseen = node.getAsJsonObject().get("last_seen_online").getAsLong();
+            serverStorageList.add(new ServerStorage(address, version, lastscanned, lastseen));
         });
 
         return serverStorageList;
