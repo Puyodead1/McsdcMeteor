@@ -327,6 +327,7 @@ public class FindNewServersScreen extends WindowScreen {
 
     public enum VersionEnum {
         ANY("any", -1),
+        _1_21_5("1.21.5", 770),
         _1_21_4("1.21.4", 769),
         _1_21_2("1.21.2", 768),
         _1_21("1.21", 767),
