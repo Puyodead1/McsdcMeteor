@@ -4,10 +4,11 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "AddressResolverMixin",
-    "ConnectScreenMixin",
+    "ClientPlayNetworkHandlerMixin",
     "GameMenuMixin",
+    "MultiplayerScreenAccessor",
     "MultiplayerScreenMixin",
-    "ServerEntryMixin"
+	"ServerEntryMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,6 +1,7 @@
 package com.mcsdc.addon.gui;
 
 import com.mcsdc.addon.Main;
+import com.mcsdc.addon.MultiplayerScreenUtils;
 import com.mcsdc.addon.system.McsdcSystem;
 import com.mcsdc.addon.system.ServerStorage;
 import meteordevelopment.meteorclient.gui.GuiThemes;
@@ -13,7 +14,6 @@ import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 
-import java.util.Collections;
 import java.util.List;
 
 public class RecentServersScreen extends WindowScreen {
@@ -46,8 +46,7 @@ public class RecentServersScreen extends WindowScreen {
         table.add(theme.horizontalSeparator()).expandX();
 
         // Reverse list so most recent shows at the top
-        List<ServerStorage> reversed = McsdcSystem.get().getRecentServers();
-        Collections.reverse(reversed);
+        List<ServerStorage> reversed = McsdcSystem.get().getRecentServers().reversed();
 
         reversed.forEach((serverStorage) -> {
             String serverIP = serverStorage.ip();
@@ -61,8 +60,8 @@ public class RecentServersScreen extends WindowScreen {
             addServerButton.action = () -> {
                 ServerInfo info = new ServerInfo("Mcsdc " + serverIP, serverIP, ServerInfo.ServerType.OTHER);
                 multiplayerScreen.getServerList().add(info, false);
-                multiplayerScreen.getServerList().saveFile();
-                multiplayerScreen.getServerList().loadFile();
+                MultiplayerScreenUtils.save(this.multiplayerScreen);
+                MultiplayerScreenUtils.reload(this.multiplayerScreen);
                 addServerButton.visible = false;
             };
 

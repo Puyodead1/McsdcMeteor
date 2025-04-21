@@ -2,22 +2,22 @@ package com.mcsdc.addon.mixin;
 
 import com.mcsdc.addon.system.McsdcSystem;
 import com.mcsdc.addon.system.ServerStorage;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
-import net.minecraft.client.network.CookieStorage;
-import net.minecraft.client.network.ServerAddress;
+import meteordevelopment.meteorclient.MeteorClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ServerInfo;
+import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ConnectScreen.class)
-public class ConnectScreenMixin {
+@Mixin(ClientPlayNetworkHandler.class)
+public class ClientPlayNetworkHandlerMixin {
 
-    @Inject(method = "connect(Lnet/minecraft/client/MinecraftClient;Lnet/minecraft/client/network/ServerAddress;Lnet/minecraft/client/network/ServerInfo;Lnet/minecraft/client/network/CookieStorage;)V", at = @At("HEAD"), cancellable = true)
-    private void onConnect(MinecraftClient client, ServerAddress address, ServerInfo info, CookieStorage cookieStorage, CallbackInfo ci){
+    @Inject(method = "onGameJoin", at = @At("TAIL"))
+    private void onGameJoinTail(GameJoinS2CPacket packet, CallbackInfo ci) {
         McsdcSystem system = McsdcSystem.get();
+        ServerInfo info = MeteorClient.mc.getNetworkHandler().getServerInfo();
         ServerStorage server = system.getRecentServerWithIp(info.address);
 
         if (system.getRecentServers().contains(server)){
@@ -27,6 +27,7 @@ public class ConnectScreenMixin {
         }
 
         system.getRecentServers().add(new ServerStorage(info.address, info.version.getString(), null, null));
+
     }
 
 }

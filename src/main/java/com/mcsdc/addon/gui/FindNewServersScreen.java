@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mcsdc.addon.Main;
+import com.mcsdc.addon.MultiplayerScreenUtils;
 import com.mcsdc.addon.system.McsdcSystem;
 import com.mcsdc.addon.system.ServerSearchBuilder;
 import com.mcsdc.addon.system.ServerStorage;
@@ -238,8 +239,8 @@ public class FindNewServersScreen extends WindowScreen {
                 ServerInfo info = new ServerInfo("Mcsdc " + server.ip(), server.ip(), ServerInfo.ServerType.OTHER);
                 multiplayerScreen.getServerList().add(info, false);
             });
-            multiplayerScreen.getServerList().saveFile();
-            multiplayerScreen.getServerList().loadFile();
+            MultiplayerScreenUtils.save(this.multiplayerScreen);
+            MultiplayerScreenUtils.reload(this.multiplayerScreen);
         };
 
         buttons.add(theme.button("randomize")).expandX().widget().action = () -> {
@@ -275,8 +276,8 @@ public class FindNewServersScreen extends WindowScreen {
                 addServerButton.action = () -> {
                     ServerInfo info = new ServerInfo("Mcsdc " + serverIP, serverIP, ServerInfo.ServerType.OTHER);
                     multiplayerScreen.getServerList().add(info, false);
-                    multiplayerScreen.getServerList().saveFile();
-                    multiplayerScreen.getServerList().loadFile();
+                    MultiplayerScreenUtils.save(this.multiplayerScreen);
+                    MultiplayerScreenUtils.reload(this.multiplayerScreen);
                     addServerButton.visible = false;
                 };
 
@@ -326,6 +327,7 @@ public class FindNewServersScreen extends WindowScreen {
 
     public enum VersionEnum {
         ANY("any", -1),
+        _1_21_5("1.21.5", 770),
         _1_21_4("1.21.4", 769),
         _1_21_2("1.21.2", 768),
         _1_21("1.21", 767),

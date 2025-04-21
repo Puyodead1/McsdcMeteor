@@ -11,6 +11,12 @@ import meteordevelopment.meteorclient.gui.WindowScreen;
 import meteordevelopment.meteorclient.gui.widgets.containers.WTable;
 import meteordevelopment.meteorclient.systems.accounts.types.CrackedAccount;
 import meteordevelopment.meteorclient.utils.network.Http;
+import net.minecraft.client.gui.screen.TitleScreen;
+import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
+import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
+import net.minecraft.client.network.ServerAddress;
+import net.minecraft.client.network.ServerInfo;
+import net.minecraft.client.network.ServerInfo.ServerType;
 
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
@@ -156,6 +162,26 @@ public class ServerInfoScreen extends WindowScreen {
                         accounts.add(theme.button("Login")).expandX().widget().action = () -> {
                             new CrackedAccount(info.name).login();
                         };
+                        
+                        if (Main.mc.world == null) {
+                            accounts.add(theme.button("Login & join")).expandX().widget().action = () -> {
+                                new CrackedAccount(info.name).login();
+                                
+                                ServerInfo serverInfo = new ServerInfo("Mcsdc " + this.ip, this.ip, ServerType.OTHER);
+                                ConnectScreen.connect(new MultiplayerScreen(new TitleScreen()), Main.mc, 
+                                    ServerAddress.parse(serverInfo.address), serverInfo, false, null);
+                            };
+                        } else {
+                            accounts.add(theme.button("Login & rejoin")).expandX().widget().action = () -> {
+                                new CrackedAccount(info.name).login();
+                                
+                                ServerInfo serverInfo = Main.mc.getNetworkHandler().getServerInfo();
+                                Main.mc.world.disconnect();
+                                ConnectScreen.connect(new MultiplayerScreen(new TitleScreen()), Main.mc, 
+                                    ServerAddress.parse(serverInfo.address), serverInfo, false, null);
+                            };
+                        }
+                        
                         if (players.getLast() != info) accounts.row();
                     }
                 }

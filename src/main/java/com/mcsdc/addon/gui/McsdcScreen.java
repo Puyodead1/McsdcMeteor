@@ -1,5 +1,6 @@
 package com.mcsdc.addon.gui;
 
+import com.mcsdc.addon.MultiplayerScreenUtils;
 import com.mcsdc.addon.system.McsdcSystem;
 import meteordevelopment.meteorclient.gui.GuiThemes;
 import meteordevelopment.meteorclient.gui.WindowScreen;
@@ -75,8 +76,8 @@ public class McsdcScreen extends WindowScreen {
                 }
             }
 
-            multiplayerScreen.getServerList().saveFile();
-            multiplayerScreen.getServerList().loadFile();
+            MultiplayerScreenUtils.save(this.multiplayerScreen);
+            MultiplayerScreenUtils.reload(this.multiplayerScreen);
         };
 
 //        findPlayersButton.action = () -> {
@@ -88,6 +89,7 @@ public class McsdcScreen extends WindowScreen {
     @Override
     public void close() {
         super.close();
-        this.client.setScreen(new MultiplayerScreen(null));
+        MultiplayerScreenUtils.reload(this.multiplayerScreen);
+        this.client.setScreen(this.multiplayerScreen);
     }
 }
