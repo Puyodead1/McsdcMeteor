@@ -52,20 +52,37 @@ public class ServerSearchBuilder {
         }
     }
 
+    public static class Extra{
+        Boolean hasHistory, hasNotes;
+
+        public Extra(Boolean hasHistory, Boolean hasNotes){
+            this.hasHistory = hasHistory;
+            this.hasNotes = hasNotes;
+        }
+
+        public JsonObject toJsonObject(){
+            JsonObject jsonObject = new JsonObject();
+            if (hasHistory != null) jsonObject.addProperty("has_history", hasHistory);
+            if (hasNotes != null) jsonObject.addProperty("has_notes", hasHistory);
+            return jsonObject;
+        }
+    }
+
     public static class Search {
         Version version;
         Flags flags;
+        Extra extra;
 
-        public Search(Version version, Flags flags) {
+        public Search(Version version, Flags flags, Extra extra) {
             this.version = version;
             this.flags = flags;
+            this.extra = extra;
         }
     }
 
     public static JsonObject createJson(Search search) {
         JsonObject rootJson = new JsonObject(), searchJson = new JsonObject();
 
-        // Handle version dynamically (null, int -> protocol, or string -> name)
         if (search.version != null) {
             JsonElement versionElement = search.version.toJson();
             searchJson.add("version", versionElement);
@@ -73,7 +90,9 @@ public class ServerSearchBuilder {
             searchJson.add("version", null);
         }
 
-        // Ensure "flags" always exists but only contains non-null fields
+        JsonObject extraJson = search.extra != null ? search.extra.toJsonObject() : new JsonObject();
+        searchJson.add("extra", extraJson);
+
         JsonObject flagsJson = search.flags != null ? search.flags.toJsonObject() : new JsonObject();
         searchJson.add("flags", flagsJson);
 

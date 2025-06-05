@@ -94,6 +94,20 @@ public class FindNewServersScreen extends WindowScreen {
         .build()
     );
 
+    private final Setting<Flags> hasHistory = sg.add(new EnumSetting.Builder<Flags>()
+        .name("hasHistory")
+        .description("")
+        .defaultValue(Flags.ANY)
+        .build()
+    );
+
+    private final Setting<Flags> hasNotes = sg.add(new EnumSetting.Builder<Flags>()
+        .name("hasNotes")
+        .description("")
+        .defaultValue(Flags.ANY)
+        .build()
+    );
+
     private final Setting<Boolean> advancedVersionSetting = sg.add(new BoolSetting.Builder()
         .name("advanced version")
         .description("")
@@ -124,6 +138,7 @@ public class FindNewServersScreen extends WindowScreen {
         .visible(() -> !advancedVersionSetting.get())
         .build()
     );
+
 
     private final Setting<String> versionStringSetting = sg.add(new StringSetting.Builder()
         .name("version")
@@ -197,8 +212,9 @@ public class FindNewServersScreen extends WindowScreen {
                 }
 
                 ServerSearchBuilder.Version versionString = new ServerSearchBuilder.Version(ver);
+                ServerSearchBuilder.Extra extra = new ServerSearchBuilder.Extra(hasHistory.get().bool, hasNotes.get().bool);
                 ServerSearchBuilder.Flags flags = new ServerSearchBuilder.Flags(visitedSetting.get().bool, griefedSetting.get().bool, moddedSetting.get().bool, savedSetting.get().bool, whitelistSetting.get().bool, activeSetting.get().bool, crackedSetting.get().bool);
-                ServerSearchBuilder.Search searchString = new ServerSearchBuilder.Search(versionString, flags);
+                ServerSearchBuilder.Search searchString = new ServerSearchBuilder.Search(versionString, flags, extra);
 
                 JsonObject jsonString = ServerSearchBuilder.createJson(searchString);
 
