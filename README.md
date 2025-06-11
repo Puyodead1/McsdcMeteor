@@ -23,8 +23,8 @@
 ## Examples:
 
 <p align="center">
-    <img src="https://r2.e-z.host/a6b84dbb-4f7f-499e-93b4-0ae8c59b2213/cuwc553i.png" width="80%" alt="Example Image 1"/>
-    <img src="https://r2.e-z.host/a6b84dbb-4f7f-499e-93b4-0ae8c59b2213/e96tp4vq.png" width="80%" alt="Example Image 1"/>
-    <img src="https://r2.e-z.host/a6b84dbb-4f7f-499e-93b4-0ae8c59b2213/uy1j1mys.png" width="80%" alt="Example Image 1"/>
-    <img src="https://r2.e-z.host/a6b84dbb-4f7f-499e-93b4-0ae8c59b2213/wk2ahs2f.png" width="80%" alt="Example Image 1"/>
+    <img src="https://r2.e-z.host/a6b84dbb-4f7f-499e-93b4-0ae8c59b2213/cl6yg5em.png" width="80%" alt="Example Image 1"/>
+    <img src="https://r2.e-z.host/a6b84dbb-4f7f-499e-93b4-0ae8c59b2213/lnx9v4mm.png" width="80%" alt="Example Image 1"/>
+    <img src="https://r2.e-z.host/a6b84dbb-4f7f-499e-93b4-0ae8c59b2213/dmqgln1y.png" width="80%" alt="Example Image 1"/>
+    <img src="https://r2.e-z.host/a6b84dbb-4f7f-499e-93b4-0ae8c59b2213/v4owmdwp.png" width="80%" alt="Example Image 1"/>
 </p>
