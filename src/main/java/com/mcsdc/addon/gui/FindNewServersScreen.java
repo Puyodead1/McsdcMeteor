@@ -280,11 +280,11 @@ public class FindNewServersScreen extends WindowScreen {
                 if (advancedMOTD.get()) {
                     motds = new ArrayList<>();
                     MOTD.DEFAULT.setSearch(DEFAULT.get().bool);
-                    MOTD.DEFAULT.setSearch(COMMUNITY.get().bool);
-                    MOTD.DEFAULT.setSearch(CREATIVE.get().bool);
-                    MOTD.DEFAULT.setSearch(BIGOTRY.get().bool);
-                    MOTD.DEFAULT.setSearch(FURRY.get().bool);
-                    MOTD.DEFAULT.setSearch(LGBT.get().bool);
+                    MOTD.COMMUNITY.setSearch(COMMUNITY.get().bool);
+                    MOTD.CREATIVE.setSearch(CREATIVE.get().bool);
+                    MOTD.BIGOTRY.setSearch(BIGOTRY.get().bool);
+                    MOTD.FURRY.setSearch(FURRY.get().bool);
+                    MOTD.LGBT.setSearch(LGBT.get().bool);
 
                     motds.add(MOTD.DEFAULT);
                     motds.add(MOTD.COMMUNITY);
