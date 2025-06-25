@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mcsdc.addon.Main;
 import com.mcsdc.addon.MultiplayerScreenUtils;
+import com.mcsdc.addon.system.MOTD;
 import com.mcsdc.addon.system.McsdcSystem;
 import com.mcsdc.addon.system.ServerSearchBuilder;
 import com.mcsdc.addon.system.ServerStorage;
@@ -108,6 +109,69 @@ public class FindNewServersScreen extends WindowScreen {
         .build()
     );
 
+    private final Setting<Boolean> advancedMOTD = sg.add(new BoolSetting.Builder()
+        .name("MOTD-Searching")
+        .description("")
+        .defaultValue(false)
+        .onChanged((v) -> {
+            reload();
+            if (extractedServers != null && !extractedServers.isEmpty()){
+                bruh();
+            }
+
+
+        })
+        .build()
+    );
+
+    private final Setting<Flags> DEFAULT = sg.add(new EnumSetting.Builder<Flags>()
+        .name("default-MOTD")
+        .description("")
+        .defaultValue(Flags.ANY)
+        .visible(advancedMOTD::get)
+        .build()
+    );
+
+    private final Setting<Flags> COMMUNITY = sg.add(new EnumSetting.Builder<Flags>()
+        .name("community-MOTD")
+        .description("")
+        .defaultValue(Flags.ANY)
+        .visible(advancedMOTD::get)
+        .build()
+    );
+
+    private final Setting<Flags> CREATIVE = sg.add(new EnumSetting.Builder<Flags>()
+        .name("creative-MOTD")
+        .description("")
+        .defaultValue(Flags.ANY)
+        .visible(advancedMOTD::get)
+        .build()
+    );
+
+    private final Setting<Flags> BIGOTRY = sg.add(new EnumSetting.Builder<Flags>()
+        .name("bigotry-MOTD")
+        .description("")
+        .defaultValue(Flags.ANY)
+        .visible(advancedMOTD::get)
+        .build()
+    );
+
+    private final Setting<Flags> FURRY = sg.add(new EnumSetting.Builder<Flags>()
+        .name("furry-MOTD")
+        .description("")
+        .defaultValue(Flags.ANY)
+        .visible(advancedMOTD::get)
+        .build()
+    );
+
+    private final Setting<Flags> LGBT = sg.add(new EnumSetting.Builder<Flags>()
+        .name("lgbt-MOTD")
+        .description("")
+        .defaultValue(Flags.ANY)
+        .visible(advancedMOTD::get)
+        .build()
+    );
+
     private final Setting<Boolean> advancedVersionSetting = sg.add(new BoolSetting.Builder()
         .name("advanced version")
         .description("")
@@ -182,7 +246,7 @@ public class FindNewServersScreen extends WindowScreen {
             if (searching) return;
             reload();
 
-            if (visitedSetting.get().bool == null && griefedSetting.get().bool  == null && moddedSetting.get().bool  == null && savedSetting.get().bool  == null && whitelistSetting.get().bool  == null && activeSetting.get().bool == null && crackedSetting.get().bool  == null){
+            if (!advancedMOTD.get() && visitedSetting.get().bool == null && griefedSetting.get().bool  == null && moddedSetting.get().bool  == null && savedSetting.get().bool  == null && whitelistSetting.get().bool  == null && activeSetting.get().bool == null && crackedSetting.get().bool  == null){
                 add(theme.label("Everything searches are not allowed.")).expandX().widget();
                 return;
             }
@@ -212,11 +276,30 @@ public class FindNewServersScreen extends WindowScreen {
                 }
 
                 ServerSearchBuilder.Version versionString = new ServerSearchBuilder.Version(ver);
-                ServerSearchBuilder.Extra extra = new ServerSearchBuilder.Extra(hasHistory.get().bool, hasNotes.get().bool);
+                List<MOTD> motds = null;
+                if (advancedMOTD.get()) {
+                    motds = new ArrayList<>();
+                    MOTD.DEFAULT.setSearch(DEFAULT.get().bool);
+                    MOTD.DEFAULT.setSearch(COMMUNITY.get().bool);
+                    MOTD.DEFAULT.setSearch(CREATIVE.get().bool);
+                    MOTD.DEFAULT.setSearch(BIGOTRY.get().bool);
+                    MOTD.DEFAULT.setSearch(FURRY.get().bool);
+                    MOTD.DEFAULT.setSearch(LGBT.get().bool);
+
+                    motds.add(MOTD.DEFAULT);
+                    motds.add(MOTD.COMMUNITY);
+                    motds.add(MOTD.CREATIVE);
+                    motds.add(MOTD.BIGOTRY);
+                    motds.add(MOTD.FURRY);
+                    motds.add(MOTD.LGBT);
+                }
+
+                ServerSearchBuilder.Extra extra = new ServerSearchBuilder.Extra(hasHistory.get().bool, hasNotes.get().bool, motds);
                 ServerSearchBuilder.Flags flags = new ServerSearchBuilder.Flags(visitedSetting.get().bool, griefedSetting.get().bool, moddedSetting.get().bool, savedSetting.get().bool, whitelistSetting.get().bool, activeSetting.get().bool, crackedSetting.get().bool);
                 ServerSearchBuilder.Search searchString = new ServerSearchBuilder.Search(versionString, flags, extra);
 
                 JsonObject jsonString = ServerSearchBuilder.createJson(searchString);
+                Main.LOG.info(jsonString.toString());
 
                 return Http.post(Main.mainEndpoint).bodyString(jsonString.toString()).header("authorization", "Bearer " + McsdcSystem.get().getToken()).sendString();
             }).thenAccept(response -> {

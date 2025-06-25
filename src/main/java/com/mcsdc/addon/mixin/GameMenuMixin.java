@@ -26,7 +26,7 @@ public class GameMenuMixin extends Screen {
     }
 
     @Inject(method = "initWidgets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/GridWidget$Adder;add(Lnet/minecraft/client/gui/widget/Widget;I)Lnet/minecraft/client/gui/widget/Widget;", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void oninitWidgets(CallbackInfo ci, GridWidget gridWidget, GridWidget.Adder adder, Text text){
+    private void oninitWidgets(CallbackInfo ci, GridWidget gridWidget, GridWidget.Adder adder){
         ServerInfo info = Main.mc.getNetworkHandler().getServerInfo();
 
         adder.add(ButtonWidget.builder(Text.literal("Info"), (button) -> {
@@ -34,7 +34,7 @@ public class GameMenuMixin extends Screen {
         }).width(204).build(), 2);
 
         adder.add(ButtonWidget.builder(Text.literal("Reconnect"), (button) -> {
-            Main.mc.world.disconnect();
+            Main.mc.world.disconnect(Text.of(""));
             ConnectScreen.connect(new MultiplayerScreen(new TitleScreen()), Main.mc,
                 ServerAddress.parse(info.address), info, false, null);
 

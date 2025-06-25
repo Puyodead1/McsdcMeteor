@@ -3,6 +3,9 @@ package com.mcsdc.addon.system;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import javax.annotation.Nullable;
+import java.util.List;
+
 public class ServerSearchBuilder {
     public static class Version {
         Object value;
@@ -54,16 +57,26 @@ public class ServerSearchBuilder {
 
     public static class Extra{
         Boolean hasHistory, hasNotes;
+        List<MOTD> motds;
 
-        public Extra(Boolean hasHistory, Boolean hasNotes){
+        public Extra(Boolean hasHistory, Boolean hasNotes, @Nullable List<MOTD> motds){
             this.hasHistory = hasHistory;
             this.hasNotes = hasNotes;
+            this.motds = motds;
         }
 
         public JsonObject toJsonObject(){
             JsonObject jsonObject = new JsonObject();
+            JsonObject motdJsonObject = new JsonObject();
             if (hasHistory != null) jsonObject.addProperty("has_history", hasHistory);
             if (hasNotes != null) jsonObject.addProperty("has_notes", hasHistory);
+            if (motds != null){
+                for (MOTD value : motds){
+                    motdJsonObject.addProperty(value.getName(), value.shouldSearch());
+                }
+                jsonObject.add("motd", motdJsonObject);
+            }
+
             return jsonObject;
         }
     }

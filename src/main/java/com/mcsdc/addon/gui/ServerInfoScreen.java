@@ -17,6 +17,7 @@ import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.network.ServerInfo.ServerType;
+import net.minecraft.text.Text;
 
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
@@ -183,7 +184,7 @@ public class ServerInfoScreen extends WindowScreen {
                                 new CrackedAccount(info.name).login();
 
                                 ServerInfo serverInfo = Main.mc.getNetworkHandler().getServerInfo();
-                                Main.mc.world.disconnect();
+                                Main.mc.world.disconnect(Text.of(""));
                                 ConnectScreen.connect(new MultiplayerScreen(new TitleScreen()), Main.mc,
                                     ServerAddress.parse(serverInfo.address), serverInfo, false, null);
                             };
