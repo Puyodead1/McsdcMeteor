@@ -24,9 +24,7 @@ import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class FindNewServersScreen extends WindowScreen {
@@ -276,22 +274,20 @@ public class FindNewServersScreen extends WindowScreen {
                 }
 
                 ServerSearchBuilder.Version versionString = new ServerSearchBuilder.Version(ver);
-                List<MOTD> motds = null;
+                HashMap<MOTD, Boolean> motds = null;
                 if (advancedMOTD.get()) {
-                    motds = new ArrayList<>();
-                    MOTD.DEFAULT.setSearch(DEFAULT.get().bool);
-                    MOTD.COMMUNITY.setSearch(COMMUNITY.get().bool);
-                    MOTD.CREATIVE.setSearch(CREATIVE.get().bool);
-                    MOTD.BIGOTRY.setSearch(BIGOTRY.get().bool);
-                    MOTD.FURRY.setSearch(FURRY.get().bool);
-                    MOTD.LGBT.setSearch(LGBT.get().bool);
+                    motds = new HashMap<>();
 
-                    motds.add(MOTD.DEFAULT);
-                    motds.add(MOTD.COMMUNITY);
-                    motds.add(MOTD.CREATIVE);
-                    motds.add(MOTD.BIGOTRY);
-                    motds.add(MOTD.FURRY);
-                    motds.add(MOTD.LGBT);
+                    motds.put(MOTD.DEFAULT, DEFAULT.get().bool);
+                    motds.put(MOTD.COMMUNITY, COMMUNITY.get().bool);
+                    motds.put(MOTD.CREATIVE, CREATIVE.get().bool);
+                    motds.put(MOTD.BIGOTRY, BIGOTRY.get().bool);
+                    motds.put(MOTD.FURRY, FURRY.get().bool);
+                    motds.put(MOTD.LGBT, LGBT.get().bool);
+
+                    for (MOTD motd : MOTD.values()) {
+                        motd.setSearch(motds.get(motd));
+                    }
                 }
 
                 ServerSearchBuilder.Extra extra = new ServerSearchBuilder.Extra(hasHistory.get().bool, hasNotes.get().bool, motds);

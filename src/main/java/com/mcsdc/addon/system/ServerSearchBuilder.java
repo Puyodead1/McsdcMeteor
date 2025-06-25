@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.List;
 
 public class ServerSearchBuilder {
@@ -57,9 +58,9 @@ public class ServerSearchBuilder {
 
     public static class Extra{
         Boolean hasHistory, hasNotes;
-        List<MOTD> motds;
+        HashMap<MOTD, Boolean> motds = null;
 
-        public Extra(Boolean hasHistory, Boolean hasNotes, @Nullable List<MOTD> motds){
+        public Extra(Boolean hasHistory, Boolean hasNotes, @Nullable HashMap<MOTD, Boolean> motds){
             this.hasHistory = hasHistory;
             this.hasNotes = hasNotes;
             this.motds = motds;
@@ -71,9 +72,10 @@ public class ServerSearchBuilder {
             if (hasHistory != null) jsonObject.addProperty("has_history", hasHistory);
             if (hasNotes != null) jsonObject.addProperty("has_notes", hasHistory);
             if (motds != null){
-                for (MOTD value : motds){
+                for (MOTD value : motds.keySet()) {
                     motdJsonObject.addProperty(value.getName(), value.shouldSearch());
                 }
+
                 jsonObject.add("motd", motdJsonObject);
             }
 
